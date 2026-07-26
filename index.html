@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>OMR Suite - Generator & Corrector</title>
-  
+
   <!-- jsPDF for PDF generation -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <!-- OpenCV.js for OMR correction -->
@@ -113,7 +113,7 @@
     .form-group { margin-bottom: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; }
     label { font-weight: 600; font-size: 0.95rem; }
 
-    input[type="file"], input[type="text"], textarea {
+    input[type="file"], input[type="text"], input[type="number"], textarea {
       padding: 0.75rem;
       border: 1px solid var(--border);
       border-radius: 4px;
@@ -123,7 +123,7 @@
     textarea { font-family: monospace; resize: vertical; }
 
     .btn-group { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; }
-    
+
     .btn {
       padding: 0.75rem 1.5rem;
       font-size: 1rem;
@@ -144,9 +144,9 @@
     .btn-secondary:hover { background-color: var(--secondary-hover); }
 
     .btn-success { background-color: var(--success); color: white; width: 100%; margin-top: 1rem;}
-    
+
     .status-msg { margin-top: 1rem; font-size: 0.9rem; font-weight: bold; color: var(--success); text-align: center; }
-    
+
     #opencv-status {
       display: inline-block;
       padding: 0.5rem 1rem;
@@ -168,8 +168,8 @@
 <body>
 
   <div class="container">
-    
-    <!-- Selector d'idiomes -->
+
+    <!-- Language Selector -->
     <div class="lang-selector">
       <button class="lang-btn" onclick="setLang('en')" id="btn-en">English</button>
       <button class="lang-btn" onclick="setLang('es')" id="btn-es">Español</button>
@@ -191,16 +191,23 @@
          TAB 1: GENERADOR 
          ============================================== -->
     <div id="tab-gen" class="tab-content active">
-      
+
       <!-- Professor Key -->
       <section class="card">
         <h2 data-i18n="genSec1Title">Pauta del Professor</h2>
+        
+        <!-- Dynamic Questions Input -->
         <div class="form-group">
-          <label for="pauta-manual" data-i18n="genSec1Label">Respostes (100 lletres A, B, C o D contigües):</label>
+          <label for="num-questions" data-i18n="genNumQuestions">Nombre de preguntes (Max 100):</label>
+          <input type="number" id="num-questions" value="100" min="1" max="100">
+        </div>
+
+        <div class="form-group">
+          <label for="pauta-manual" data-i18n="genSec1Label">Respostes (lletres A, B, C o D contigües):</label>
           <textarea id="pauta-manual" rows="3" placeholder="Ex: ABCDABCDABCD..."></textarea>
         </div>
         <div class="btn-group">
-          <button id="btn-rand-pauta" class="btn btn-secondary" data-i18n="genBtnRand">🎲 Generar 100 Aleatòries</button>
+          <button id="btn-rand-pauta" class="btn btn-secondary" data-i18n="genBtnRand">🎲 Generar Aleatòries</button>
         </div>
         <div class="btn-group">
           <button id="btn-dl-pauta-png" class="btn btn-primary" data-i18n="genBtnDlPng">📥 Descarregar Pauta (PNG)</button>
@@ -238,7 +245,7 @@
          TAB 2: CORRECTOR 
          ============================================== -->
     <div id="tab-corr" class="tab-content">
-      
+
       <div style="text-align: center;">
         <div id="opencv-status">Carregant motor d'intel·ligència artificial (OpenCV)...</div>
       </div>
@@ -290,7 +297,7 @@
         <button id="btn-csv" class="btn btn-success" style="display: none;" data-i18n="corrBtnCsv">Descarregar Resultats en CSV</button>
       </section>
 
-      <!-- Elements ocults per OpenCV -->
+      <!-- Hidden Elements for OpenCV -->
       <img id="img-hidden" style="display:none;">
       <canvas id="omr-canvas" style="display:none;"></canvas>
     </div>
@@ -307,7 +314,7 @@
     const BOX_W = 30;
     const BOX_H = 15;
     const OPTIONS = ['A', 'B', 'C', 'D'];
-    
+
     // Correcting Specifics
     const X_START_ID = 320;
     const Y_DESENES = 175;
@@ -324,11 +331,12 @@
         mainSubtitle: "Complete solution to create and evaluate multiple-choice exams with OpenCV",
         tabGen: "1. Exam Generator",
         tabCorr: "2. Automatic Corrector",
-        
+
         // Gen Strings
         genSec1Title: "Teacher Answer Key",
-        genSec1Label: "Answers (100 continuous letters A, B, C, or D):",
-        genBtnRand: "🎲 Generate 100 Random",
+        genNumQuestions: "Number of questions (Max 100):",
+        genSec1Label: "Answers (continuous letters A, B, C, or D):",
+        genBtnRand: "🎲 Generate Random",
         genBtnDlPng: "📥 Download Key (PNG)",
         genBtnDlPdf: "📄 Download Key (PDF)",
         genSec2Title: "Test Student Generator",
@@ -338,7 +346,7 @@
         genSec3Desc: "Download the blank template to print and distribute to students.",
         genBtnBlankPng: "📥 Download BLANK (PNG)",
         genBtnBlankPdf: "📄 Download BLANK (PDF)",
-        alertLength: "Warning: The answer key must have exactly 100 valid letters (A, B, C, D). Detected ",
+        alertLength: "Warning: The answer key length must match your questions. Detected ",
         alertLetters: " letters.",
         statusPautaPng: "PNG Key downloaded!",
         statusPautaPdf: "PDF Key downloaded!",
@@ -349,7 +357,7 @@
         canvasName: "Name:", canvasSubject: "Subject:", canvasGroup: "Group:", canvasDate: "Date:",
         canvasIdTens: "Student ID - Tens:", canvasIdUnits: "Student ID - Units:",
         canvasTitlePauta: "ANSWER KEY (TEACHER)", canvasTitleStudent: "STUDENT EXAM (ID: ", canvasTitleBlank: "ANSWER SHEET",
-        
+
         // Corr Strings
         cvLoading: "Loading Artificial Intelligence engine (OpenCV)...",
         cvReady: "OpenCV Engine Ready",
@@ -374,11 +382,12 @@
         mainSubtitle: "Solución completa para crear y evaluar exámenes tipo test con OpenCV",
         tabGen: "1. Generador de Exámenes",
         tabCorr: "2. Corrector Automático",
-        
+
         // Gen Strings
         genSec1Title: "Pauta del Profesor",
-        genSec1Label: "Respuestas (100 letras A, B, C o D contiguas):",
-        genBtnRand: "🎲 Generar 100 Aleatorias",
+        genNumQuestions: "Número de preguntas (Máx 100):",
+        genSec1Label: "Respuestas (letras A, B, C o D contiguas):",
+        genBtnRand: "🎲 Generar Aleatorias",
         genBtnDlPng: "📥 Descargar Pauta (PNG)",
         genBtnDlPdf: "📄 Descargar Pauta (PDF)",
         genSec2Title: "Generador de Alumnos de Prueba",
@@ -388,7 +397,7 @@
         genSec3Desc: "Descarga la plantilla vacía para imprimir y repartir a los alumnos.",
         genBtnBlankPng: "📥 Descargar VACÍA (PNG)",
         genBtnBlankPdf: "📄 Descargar VACÍA (PDF)",
-        alertLength: "Atención: La pauta debe tener exactamente 100 letras válidas. Detectadas ",
+        alertLength: "Atención: La pauta debe tener la longitud exacta de preguntas. Detectadas ",
         alertLetters: " letras.",
         statusPautaPng: "¡Pauta PNG descargada!",
         statusPautaPdf: "¡Pauta PDF descargada!",
@@ -399,7 +408,7 @@
         canvasName: "Nombre:", canvasSubject: "Asignatura:", canvasGroup: "Grupo:", canvasDate: "Fecha:",
         canvasIdTens: "ID Alumno - Decenas:", canvasIdUnits: "ID Alumno - Unidades:",
         canvasTitlePauta: "PAUTA DE CORRECCIÓN (PROFESOR)", canvasTitleStudent: "EXAMEN DE ALUMNO (ID: ", canvasTitleBlank: "HOJA DE RESPUESTAS",
-        
+
         // Corr Strings
         cvLoading: "Cargando motor OpenCV...",
         cvReady: "Motor OpenCV Preparado",
@@ -424,11 +433,12 @@
         mainSubtitle: "Solució completa per crear i avaluar exàmens tipus test amb OpenCV",
         tabGen: "1. Generador d'Exàmens",
         tabCorr: "2. Corrector Automàtic",
-        
+
         // Gen Strings
         genSec1Title: "Pauta del Professor",
-        genSec1Label: "Respostes (100 lletres A, B, C o D contigües):",
-        genBtnRand: "🎲 Generar 100 Aleatòries",
+        genNumQuestions: "Nombre de preguntes (Max 100):",
+        genSec1Label: "Respostes (lletres A, B, C o D contigües):",
+        genBtnRand: "🎲 Generar Aleatòries",
         genBtnDlPng: "📥 Descarregar Pauta (PNG)",
         genBtnDlPdf: "📄 Descarregar Pauta (PDF)",
         genSec2Title: "Generador d'Alumnes de Prova",
@@ -438,7 +448,7 @@
         genSec3Desc: "Descarrega la plantilla buida per imprimir i repartir als alumnes.",
         genBtnBlankPng: "📥 Descarregar BUIDA (PNG)",
         genBtnBlankPdf: "📄 Descarregar BUIDA (PDF)",
-        alertLength: "Atenció: La pauta ha de tenir 100 lletres vàlides. Detectades ",
+        alertLength: "Atenció: La pauta ha de tenir la longitud de preguntes exacta. Detectades ",
         alertLetters: " lletres.",
         statusPautaPng: "Pauta PNG descarregada!",
         statusPautaPdf: "Pauta PDF descarregada!",
@@ -449,7 +459,7 @@
         canvasName: "Nom:", canvasSubject: "Assignatura:", canvasGroup: "Grup:", canvasDate: "Data:",
         canvasIdTens: "ID Alumne - Desenes:", canvasIdUnits: "ID Alumne - Unitats:",
         canvasTitlePauta: "PAUTA DE CORRECCIÓ (PROFESSOR)", canvasTitleStudent: "EXAMEN D'ALUMNE (ID: ", canvasTitleBlank: "FULL DE RESPOSTES",
-        
+
         // Corr Strings
         cvLoading: "Carregant motor d'intel·ligència artificial (OpenCV)...",
         cvReady: "Motor OpenCV Preparat",
@@ -476,7 +486,7 @@
     function setLang(lang) {
       currentLang = lang;
       document.documentElement.lang = lang;
-      
+
       document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
       document.getElementById(`btn-${lang}`).classList.add('active');
 
@@ -486,11 +496,11 @@
       });
 
       document.title = translations[lang].mainTitle;
-      
+
       const statusEl = document.getElementById('opencv-status');
       if (cvReady) statusEl.innerText = translations[lang].cvReady;
       else statusEl.innerText = translations[lang].cvLoading;
-      
+
       document.querySelectorAll('.status-msg').forEach(el => el.innerText = '');
     }
 
@@ -500,9 +510,17 @@
     function switchTab(tabId) {
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-      
+
       document.getElementById(`tab-btn-${tabId}`).classList.add('active');
       document.getElementById(`tab-${tabId}`).classList.add('active');
+    }
+
+    /* ==========================================
+       SHARED HELPER
+       ========================================== */
+    function getNumQuestions() {
+      const num = parseInt(document.getElementById('num-questions').value, 10);
+      return (isNaN(num) || num < 1) ? 100 : Math.min(num, 100);
     }
 
     /* ==========================================
@@ -510,9 +528,11 @@
        ========================================== */
     function getRandLetter() { return OPTIONS[Math.floor(Math.random() * OPTIONS.length)]; }
     function getRandID() { return `${Math.floor(Math.random() * 4)}${Math.floor(Math.random() * 10)}`; }
+    
     function generateRandomPautaStr() {
       let str = "";
-      for(let i=0; i<100; i++) str += getRandLetter();
+      const maxQ = getNumQuestions();
+      for(let i=0; i<maxQ; i++) str += getRandLetter();
       return str;
     }
 
@@ -521,10 +541,11 @@
       const cvs = document.createElement('canvas');
       cvs.width = TEMPLATE_W; cvs.height = TEMPLATE_H;
       const ctx = cvs.getContext('2d');
+      const maxQ = getNumQuestions();
 
       ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, cvs.width, cvs.height);
       ctx.fillStyle = '#000000'; ctx.strokeStyle = '#000000'; ctx.font = '22px Arial, sans-serif';
-      
+
       ctx.fillText(t.canvasName, 70, 70); ctx.fillText(t.canvasSubject, 460, 70);
       ctx.fillText(t.canvasGroup, 770, 70); ctx.fillText(t.canvasDate, 880, 70);
 
@@ -547,7 +568,7 @@
       ctx.font = '16px Arial, sans-serif';
       ctx.fillText(t.canvasIdTens, 120, 188); ctx.fillText(t.canvasIdUnits, 120, 233);
       ctx.lineWidth = 1.5;
-      
+
       for(let i=0; i<4; i++) {
         let x = 320 + i * 40; let y = 175; 
         ctx.strokeRect(x, y, BOX_W, BOX_H); ctx.fillText(i, x + 10, y - 5);
@@ -564,6 +585,8 @@
         for(let c=0; c<4; c++) ctx.fillText(OPTIONS[c], X_COLS_DIRECTES[col][c] + 10, 255);
         for (let i = 0; i < 50; i++) {
           let num = col * 50 + i + 1;
+          if (num > maxQ) continue; // Skip drawing beyond required questions
+
           let y = Math.floor((53 + i * (215 / 49)) * SCALE); 
           ctx.fillText(num, X_COLS_DIRECTES[col][0] - 30, y + 13);
           for (let c = 0; c < 4; c++) {
@@ -594,9 +617,10 @@
     });
 
     function getPautaArray() {
+      const maxQ = getNumQuestions();
       let val = document.getElementById('pauta-manual').value.toUpperCase().replace(/[^ABCD]/g, '');
-      if (val.length !== 100) {
-        alert(translations[currentLang].alertLength + val.length + translations[currentLang].alertLetters);
+      if (val.length !== maxQ) {
+        alert(translations[currentLang].alertLength + val.length + ". Expected/Esperades/Esperadas: " + maxQ);
         return null;
       }
       return val.split('');
@@ -616,9 +640,11 @@
     document.getElementById('btn-generar-alumnes').addEventListener('click', async () => {
       const btn = document.getElementById('btn-generar-alumnes'); btn.disabled = true;
       document.getElementById('status-alumnes').innerText = translations[currentLang].statusGenerating;
+      const maxQ = getNumQuestions();
+
       for (let i = 1; i <= 5; i++) {
         const idA = getRandID(); const arr = generateRandomPautaStr().split('');
-        for (let j = 0; j < 100; j++) if (Math.random() < 0.05) arr[j] = "";
+        for (let j = 0; j < maxQ; j++) if (Math.random() < 0.05) arr[j] = ""; // Clear some answers
         downloadCanvasAsPNG(drawTemplate(`${translations[currentLang].canvasTitleStudent}${idA})`, idA, arr), `Alumne_${idA}.png`);
         await new Promise(r => setTimeout(r, 600));
       }
@@ -665,7 +691,7 @@
       let src = cv.imread(imgElement); let dst = new cv.Mat();
       let gray = new cv.Mat(); cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
       let thresh = new cv.Mat(); cv.threshold(gray, thresh, 120, 255, cv.THRESH_BINARY_INV);
-      
+
       let contours = new cv.MatVector(); let hierarchy = new cv.Mat();
       cv.findContours(thresh, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
 
@@ -717,21 +743,29 @@
       return (pings / ((w - 2) * (h - 2))) > 0.30; 
     }
 
-    function llegirDadesCanvas() {
+    function llegirDadesCanvas(maxQ) {
       let d = -1, u = -1;
       for (let i = 0; i < 4; i++) if (esMarcaObscura(X_START_ID + i * ID_STEP_X, Y_DESENES, BOX_W, BOX_H)) d = i;
       for (let i = 0; i < 10; i++) if (esMarcaObscura(X_START_ID + i * ID_STEP_X, Y_UNITATS, BOX_W, BOX_H)) u = i;
-      
+
       const idAlumne = (d !== -1 && u !== -1) ? `${d}${u}` : translations[currentLang].noRead;
       const respostes = [];
+      let count = 0;
+
       for (let col = 0; col < 2; col++) {
         for (let i = 0; i < 50; i++) {
+          if (count >= maxQ) break; // Stop reading once we hit the max
+          
           const y = Math.floor((53 + i * (215 / 49)) * SCALE);
           let marcades = [];
-          for (let c = 0; c < 4; c++) if (esMarcaObscura(X_COLS_DIRECTES[col][c], y, BOX_W, BOX_H)) marcades.push(OPTIONS[c]);
+          for (let c = 0; c < 4; c++) {
+            if (esMarcaObscura(X_COLS_DIRECTES[col][c], y, BOX_W, BOX_H)) marcades.push(OPTIONS[c]);
+          }
           if (marcades.length === 1) respostes.push(marcades[0]);
           else if (marcades.length > 1) respostes.push('MULTIPLE');
           else respostes.push('');
+          
+          count++;
         }
       }
       return { idAlumne, respostes };
@@ -740,11 +774,12 @@
     document.getElementById('btn-processar').addEventListener('click', async () => {
       const t = translations[currentLang];
       if (!cvReady) return alert(t.alertCvNotReady);
-      
+
       const pautaF = document.getElementById('pauta-input').files[0];
       const examF = document.getElementById('examens-input').files;
       const pen = parseFloat(document.getElementById('penalitzacio-input').value.replace(',', '.')) || 0;
       const lMsg = document.getElementById('loading-msg');
+      const maxQ = getNumQuestions();
 
       if (!pautaF) return alert(t.alertNoPauta); if (examF.length === 0) return alert(t.alertNoExams);
 
@@ -754,20 +789,20 @@
 
       try {
         redrecarImatge(await carregarImatgeDOM(pautaF));
-        const pauta = llegirDadesCanvas().respostes;
+        const pauta = llegirDadesCanvas(maxQ).respostes;
 
         for (let i = 0; i < examF.length; i++) {
           const file = examF[i];
           redrecarImatge(await carregarImatgeDOM(file)); 
-          const { idAlumne, respostes } = llegirDadesCanvas();
+          const { idAlumne, respostes } = llegirDadesCanvas(maxQ);
 
           let ok = 0, err = 0, bl = 0;
-          for (let j = 0; j < 100; j++) {
+          for (let j = 0; j < maxQ; j++) {
             if (respostes[j] === '') bl++;
             else if (respostes[j] === pauta[j]) ok++;
             else err++;
           }
-          const final = Math.max(0, ((ok - (err * pen)) / 100) * 10).toFixed(2);
+          const final = Math.max(0, ((ok - (err * pen)) / maxQ) * 10).toFixed(2);
           resultatsGlobals.push({ fitxer: file.name, idAlumne, ok, err, bl, final });
 
           const row = document.createElement('tr');
@@ -792,19 +827,6 @@
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
