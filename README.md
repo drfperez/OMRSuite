@@ -10,6 +10,14 @@ No servers, no installations, and completely privacy-friendly—all image proces
 
 ---
 
+## 🌐 Live Demo
+
+You can try the application directly in your browser without downloading or installing anything:
+
+👉 **[Try OMR Suite Live Here](https://drfperez.neocities.org/quiz/3languages/)**
+
+---
+
 ## ✨ Features
 
 - **🌐 Multilingual Interface:** Native support for English, Spanish, and Catalan.
@@ -29,7 +37,7 @@ No servers, no installations, and completely privacy-friendly—all image proces
 
 Because this is a standalone HTML file, there is **no build process or server setup required**.
 
-### 1. Installation
+### 1. Installation (Local Usage)
 1. Clone this repository or download the `index.html` file.
 2. Open `index.html` in any modern web browser (Chrome, Firefox, Edge, Safari).
 3. *Note: You need an active internet connection to load the OpenCV.js and jsPDF libraries from their CDNs.*
