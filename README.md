@@ -22,7 +22,7 @@ You can try the application directly in your browser without downloading or inst
 
 - **🌐 Multilingual Interface:** Native support for English, Spanish, and Catalan.
 - **📄 Exam Generator:**
-  - Create and download blank 100-question answer sheets (PDF/PNG).
+  - Create and download blank with up to a maximum of 100-question answer sheets (PDF/PNG).
   - Generate Teacher Answer Keys from a simple text string (e.g., `ABCDABCD...`).
   - Generate random test students for testing purposes.
 - **🤖 Automatic Corrector (Powered by OpenCV):**
