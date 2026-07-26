@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ca">
 <head>
@@ -178,7 +179,7 @@
 
     <header>
       <h1 data-i18n="mainTitle">Suite OMR: Generador i Corrector</h1>
-      <p data-i18n="mainSubtitle">Solució completa per crear i avaluar exàmens tipus test amb OpenCV</p>
+      <p data-i18n="mainSubtitle">Solució completa per crear i avaluar exàmens tipus test amb OpenCV i bombolles circulars</p>
     </header>
 
     <!-- Tabs Navigation -->
@@ -311,8 +312,10 @@
     const TEMPLATE_W = 1050;
     const TEMPLATE_H = 1485;
     const SCALE = 5;
-    const BOX_W = 30;
-    const BOX_H = 15;
+    
+    // Circular Properties
+    const CIRCLE_RADIUS = 8; // Abans era 10 (Més separació)
+    const ROI_SIZE = 10;     // Abans era 12 (Quadrat intern on busquem els píxels)
     const OPTIONS = ['A', 'B', 'C', 'D'];
 
     // Correcting Specifics
@@ -328,7 +331,7 @@
     const translations = {
       en: {
         mainTitle: "OMR Suite: Generator & Corrector",
-        mainSubtitle: "Complete solution to create and evaluate multiple-choice exams with OpenCV",
+        mainSubtitle: "Complete solution to create and evaluate multiple-choice exams with circular bubbles",
         tabGen: "1. Exam Generator",
         tabCorr: "2. Automatic Corrector",
 
@@ -379,7 +382,7 @@
       },
       es: {
         mainTitle: "Suite OMR: Generador y Corrector",
-        mainSubtitle: "Solución completa para crear y evaluar exámenes tipo test con OpenCV",
+        mainSubtitle: "Solución completa para crear y evaluar exámenes tipo test con burbujas circulares",
         tabGen: "1. Generador de Exámenes",
         tabCorr: "2. Corrector Automático",
 
@@ -430,7 +433,7 @@
       },
       ca: {
         mainTitle: "Suite OMR: Generador i Corrector",
-        mainSubtitle: "Solució completa per crear i avaluar exàmens tipus test amb OpenCV",
+        mainSubtitle: "Solució completa per crear i avaluar exàmens tipus test amb OpenCV i bombolles circulars",
         tabGen: "1. Generador d'Exàmens",
         tabCorr: "2. Corrector Automàtic",
 
@@ -569,15 +572,23 @@
       ctx.fillText(t.canvasIdTens, 120, 188); ctx.fillText(t.canvasIdUnits, 120, 233);
       ctx.lineWidth = 1.5;
 
+      // Draw ID Bubbles (Tens)
       for(let i=0; i<4; i++) {
-        let x = 320 + i * 40; let y = 175; 
-        ctx.strokeRect(x, y, BOX_W, BOX_H); ctx.fillText(i, x + 10, y - 5);
-        if (idAlumne && idAlumne.charAt(0) == i) ctx.fillRect(x, y, BOX_W, BOX_H);
+        let cx = 320 + i * 40 + 15; let cy = 175 + 7.5; 
+        ctx.beginPath(); ctx.arc(cx, cy, CIRCLE_RADIUS, 0, 2 * Math.PI); ctx.stroke();
+        ctx.fillText(i, cx - 4, cy - 13);
+        if (idAlumne && idAlumne.charAt(0) == i) {
+          ctx.beginPath(); ctx.arc(cx, cy, CIRCLE_RADIUS, 0, 2 * Math.PI); ctx.fill();
+        }
       }
+      // Draw ID Bubbles (Units)
       for(let i=0; i<10; i++) {
-        let x = 320 + i * 40; let y = 220;
-        ctx.strokeRect(x, y, BOX_W, BOX_H); ctx.fillText(i, x + 10, y - 5);
-        if (idAlumne && idAlumne.charAt(1) == i) ctx.fillRect(x, y, BOX_W, BOX_H);
+        let cx = 320 + i * 40 + 15; let cy = 220 + 7.5;
+        ctx.beginPath(); ctx.arc(cx, cy, CIRCLE_RADIUS, 0, 2 * Math.PI); ctx.stroke();
+        ctx.fillText(i, cx - 4, cy - 13);
+        if (idAlumne && idAlumne.charAt(1) == i) {
+          ctx.beginPath(); ctx.arc(cx, cy, CIRCLE_RADIUS, 0, 2 * Math.PI); ctx.fill();
+        }
       }
 
       ctx.font = '14px Arial, sans-serif';
@@ -585,15 +596,21 @@
         for(let c=0; c<4; c++) ctx.fillText(OPTIONS[c], X_COLS_DIRECTES[col][c] + 10, 255);
         for (let i = 0; i < 50; i++) {
           let num = col * 50 + i + 1;
-          if (num > maxQ) continue; // Skip drawing beyond required questions
+          if (num > maxQ) continue;
 
-          let y = Math.floor((53 + i * (215 / 49)) * SCALE); 
+          // CANVI APLICAT: 225 de separació vertical per donar més "aire"
+          let y = Math.floor((53 + i * (225 / 49)) * SCALE); 
           ctx.fillText(num, X_COLS_DIRECTES[col][0] - 30, y + 13);
+          
           for (let c = 0; c < 4; c++) {
-            let x = X_COLS_DIRECTES[col][c];
-            ctx.strokeRect(x, y, BOX_W, BOX_H);
+            let cx = X_COLS_DIRECTES[col][c] + 15; 
+            let cy = y + 7.5;
+            
+            ctx.beginPath(); ctx.arc(cx, cy, CIRCLE_RADIUS, 0, 2 * Math.PI); ctx.stroke();
             if (respostesArray && respostesArray[num-1] === OPTIONS[c]) {
-              ctx.fillStyle = '#222222'; ctx.fillRect(x, y, BOX_W, BOX_H); ctx.fillStyle = '#000000';
+              ctx.fillStyle = '#222222'; 
+              ctx.beginPath(); ctx.arc(cx, cy, CIRCLE_RADIUS, 0, 2 * Math.PI); ctx.fill();
+              ctx.fillStyle = '#000000';
             }
           }
         }
@@ -644,7 +661,7 @@
 
       for (let i = 1; i <= 5; i++) {
         const idA = getRandID(); const arr = generateRandomPautaStr().split('');
-        for (let j = 0; j < maxQ; j++) if (Math.random() < 0.05) arr[j] = ""; // Clear some answers
+        for (let j = 0; j < maxQ; j++) if (Math.random() < 0.05) arr[j] = ""; 
         downloadCanvasAsPNG(drawTemplate(`${translations[currentLang].canvasTitleStudent}${idA})`, idA, arr), `Alumne_${idA}.png`);
         await new Promise(r => setTimeout(r, 600));
       }
@@ -698,6 +715,7 @@
       let markers = [];
       for (let i = 0; i < contours.size(); ++i) {
         let cnt = contours.get(i); let area = cv.contourArea(cnt);
+        // Robustesa: permetem cert rang d'àrees per detectar les marques fiduciàries sense dependre d'il·luminació perfecta
         if (area > 300 && area < 30000) {
           let rect = cv.boundingRect(cnt); let aspect = rect.width / rect.height;
           if (aspect >= 0.7 && aspect <= 1.3) {
@@ -728,25 +746,39 @@
         srcTri.delete(); dstTri.delete(); M.delete();
       } else {
         console.warn(translations[currentLang].warnFiducial);
+        // Robustesa: Si falla la perspectiva geomètrica, forcem una redimensió clàssica per no trencar l'app
         cv.resize(src, dst, new cv.Size(TEMPLATE_W, TEMPLATE_H), 0, 0, cv.INTER_AREA);
       }
       cv.imshow('omr-canvas', dst);
       src.delete(); gray.delete(); thresh.delete(); contours.delete(); hierarchy.delete(); dst.delete();
     }
 
-    function esMarcaObscura(x, y, w, h) {
-      const imgData = corrCtx.getImageData(x + 1, y + 1, w - 2, h - 2);
+    // Aquesta funció avalua UN QUADRAT INTERN (ROI_SIZE x ROI_SIZE) centrat dins del cercle (cx, cy)
+    function esMarcaObscura(cx, cy) {
+      const halfRoi = Math.floor(ROI_SIZE / 2);
+      const imgData = corrCtx.getImageData(cx - halfRoi, cy - halfRoi, ROI_SIZE, ROI_SIZE);
       let pings = 0;
+      
       for (let i = 0; i < imgData.data.length; i += 4) {
+        // Fórmula de lluminositat (escala de grisos)
         if ((0.299*imgData.data[i] + 0.587*imgData.data[i+1] + 0.114*imgData.data[i+2]) < 120) pings++;
       }
-      return (pings / ((w - 2) * (h - 2))) > 0.30; 
+      
+      // Considerem marca si més del 40% del QUADRAT INTERN del cercle està fosc.
+      return (pings / (ROI_SIZE * ROI_SIZE)) > 0.40; 
     }
 
     function llegirDadesCanvas(maxQ) {
       let d = -1, u = -1;
-      for (let i = 0; i < 4; i++) if (esMarcaObscura(X_START_ID + i * ID_STEP_X, Y_DESENES, BOX_W, BOX_H)) d = i;
-      for (let i = 0; i < 10; i++) if (esMarcaObscura(X_START_ID + i * ID_STEP_X, Y_UNITATS, BOX_W, BOX_H)) u = i;
+      
+      // Llegir ID - Desenes (Avaluem centre del cercle)
+      for (let i = 0; i < 4; i++) {
+        if (esMarcaObscura(X_START_ID + i * ID_STEP_X + 15, Y_DESENES + 7.5)) d = i;
+      }
+      // Llegir ID - Unitats (Avaluem centre del cercle)
+      for (let i = 0; i < 10; i++) {
+        if (esMarcaObscura(X_START_ID + i * ID_STEP_X + 15, Y_UNITATS + 7.5)) u = i;
+      }
 
       const idAlumne = (d !== -1 && u !== -1) ? `${d}${u}` : translations[currentLang].noRead;
       const respostes = [];
@@ -754,13 +786,17 @@
 
       for (let col = 0; col < 2; col++) {
         for (let i = 0; i < 50; i++) {
-          if (count >= maxQ) break; // Stop reading once we hit the max
+          if (count >= maxQ) break;
           
-          const y = Math.floor((53 + i * (215 / 49)) * SCALE);
+          // CANVI APLICAT: 225 perquè quadre amb la plantilla "més oberta"
+          const cy = Math.floor((53 + i * (225 / 49)) * SCALE) + 7.5;
           let marcades = [];
+          
           for (let c = 0; c < 4; c++) {
-            if (esMarcaObscura(X_COLS_DIRECTES[col][c], y, BOX_W, BOX_H)) marcades.push(OPTIONS[c]);
+            const cx = X_COLS_DIRECTES[col][c] + 15;
+            if (esMarcaObscura(cx, cy)) marcades.push(OPTIONS[c]);
           }
+          
           if (marcades.length === 1) respostes.push(marcades[0]);
           else if (marcades.length > 1) respostes.push('MULTIPLE');
           else respostes.push('');
@@ -810,6 +846,7 @@
             <td><span style="color: green;">${ok}</span></td><td><span style="color: red;">${err}</span></td>
             <td><span style="color: gray;">${bl}</span></td><td><strong>${final}</strong></td>`;
           tbody.appendChild(row);
+          // Donar temps a la UI per respirar
           await new Promise(r => setTimeout(r, 20)); 
         }
         document.getElementById('btn-csv').style.display = 'inline-block';
