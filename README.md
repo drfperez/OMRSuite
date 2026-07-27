@@ -2,6 +2,7 @@
 
 > **A 100% client-side, single-file web application to generate, personalize, and automatically grade Optical Mark Recognition (OMR) exam sheets using OpenCV.js and jsPDF.**
 
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Try_it_Online-brightgreen?style=for-the-badge)](https://drfperez.neocities.org/quiz/3languages/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![OpenCV.js](https://img.shields.io/badge/OpenCV.js-4.8.0-5C3EE8?logo=opencv&logoColor=white)](#)
 [![jsPDF](https://img.shields.io/badge/jsPDF-2.5.1-red?logo=adobe-acrobat-reader&logoColor=white)](#)
@@ -9,9 +10,18 @@
 
 ---
 
+## 🌐 Live Demo
+
+Try the application directly in your web browser without downloading or installing anything:
+
+👉 **[https://drfperez.neocities.org/quiz/3languages/](https://drfperez.neocities.org/quiz/3languages/)**
+
+---
+
 ## 🌟 Key Features
 
 * **🔒 Privacy-First & Offline Ready:** Everything runs directly in the user's web browser. No student data or exam images are ever uploaded to a server.
+* **⚡ Instant Access:** Test and use the app instantly via Neocities without setting up a local environment.
 * **📄 Integrated Exam Generator:**
   * Generate blank exam templates (up to 150 questions, 4 options: A, B, C, D).
   * Generate filled teacher answer keys in high-resolution JPG or printable A4 PDF.
@@ -34,6 +44,7 @@
 * **Computer Vision:** [OpenCV.js 4.8.0](https://docs.opencv.org/) (WebAssembly/JS build)
 * **PDF Generation:** [jsPDF 2.5.1](https://github.com/parallax/jsPDF)
 * **Rendering Engine:** HTML5 Canvas API (High-DPI rendering for crisp printing)
+* **Hosting:** [Neocities](https://neocities.org/)
 
 ---
 
