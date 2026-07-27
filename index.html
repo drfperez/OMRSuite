@@ -600,7 +600,9 @@
       }
 
       ctx.font = '14px Arial, sans-serif';
-      for (let col = 0; col < 2; col++) {
+      const numCols = maxQ <= 50 ? 1 : 2; // Check if we need the second column
+      
+      for (let col = 0; col < numCols; col++) {
         for(let c=0; c<4; c++) ctx.fillText(OPTIONS[c], X_COLS_DIRECTES[col][c] + 10, 255);
         for (let i = 0; i < 50; i++) {
           let num = col * 50 + i + 1;
@@ -798,8 +800,10 @@
       const idAlumne = (d !== -1 && u !== -1) ? `${d}${u}` : translations[currentLang].noRead;
       const respostes = [];
       let count = 0;
+      
+      const numCols = maxQ <= 50 ? 1 : 2; // Ensure reading honors columns logic
 
-      for (let col = 0; col < 2; col++) {
+      for (let col = 0; col < numCols; col++) {
         for (let i = 0; i < 50; i++) {
           if (count >= maxQ) break;
           const cy = Math.floor((53 + i * (225 / 49)) * SCALE) + 7.5;
@@ -876,21 +880,3 @@
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
