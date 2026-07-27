@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ca">
 <head>
@@ -427,6 +428,7 @@
         canvasTitlePauta: "PAUTA DE CORRECCIÓ (PROFESSOR)", 
         canvasTitleStudent: "EXAMEN D'ALUMNE (ID: ", 
         canvasTitleBlank: "FULL DE RESPOSTES",
+        canvasSignature: "Signatura:", // AFEGIT
 
         cvLoading: "Carregant motor OpenCV...",
         cvReady: "Motor OpenCV Preparat",
@@ -496,6 +498,7 @@
         canvasTitlePauta: "PAUTA DE CORRECCIÓN (PROFESOR)", 
         canvasTitleStudent: "EXAMEN DE ALUMNO (ID: ", 
         canvasTitleBlank: "HOJA DE RESPUESTAS",
+        canvasSignature: "Firma:", // AFEGIT
 
         cvLoading: "Cargando motor OpenCV...",
         cvReady: "Motor OpenCV Preparado",
@@ -565,6 +568,7 @@
         canvasTitlePauta: "ANSWER KEY (TEACHER)", 
         canvasTitleStudent: "STUDENT EXAM (ID: ", 
         canvasTitleBlank: "ANSWER SHEET",
+        canvasSignature: "Signature:", // AFEGIT
 
         cvLoading: "Loading OpenCV engine...",
         cvReady: "OpenCV Engine Ready",
@@ -633,7 +637,8 @@
         dataText = "",
         grupText = "",
         respostesArray = null,
-        numQuestions = 150
+        numQuestions = 150,
+        includeSignature = false // <-- NOU PARÀMETRE
       } = opts;
 
       const t = translations[currentLang];
@@ -744,6 +749,29 @@
           }
         }
       }
+
+      // --- INICI QUADRE DE SIGNATURA ---
+      if (includeSignature) {
+        // Safe "Dead Zone": 
+        // Between ID Bubbles (ends X:668) and Top-Right Fiducial (starts X:970)
+        // Below Header (Y:130) and above Questions (Y:250)
+        const sigX = 700; 
+        const sigY = 155; 
+        const sigWidth = 240;
+        const sigHeight = 65;
+        
+        ctx.font = 'bold 16px Arial, sans-serif';
+        ctx.fillStyle = '#000000';
+        ctx.fillText(t.canvasSignature || "Signatura / Signature:", sigX, sigY - 8);
+        
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(sigX, sigY, sigWidth, sigHeight);
+      }
+      // --- FI QUADRE DE SIGNATURA ---
+
+
+
       return cvs;
     }
 
@@ -895,7 +923,8 @@
               assignatura: assignatura,
               dataText: dataText,
               grupText: grupText,
-              numQuestions: numQ
+              numQuestions: numQ,
+              includeSignature: true // <-- PASSEM EL FLAG NOMÉS AQUÍ
             });
             
             const imgData = cvs.toDataURL('image/jpeg', 0.85);
@@ -934,15 +963,36 @@
     const corrCtx = corrCvs.getContext('2d', { willReadFrequently: true });
     let resultatsGlobals = [];
 
-    function carregarImatgeDOM(file) {
+            function carregarImatgeDOM(file) {
       return new Promise((resolve, reject) => {
-        const img = document.getElementById('img-hidden');
+        // 1. Creem un element d'imatge nou i únic per a cada arxiu
+        const img = document.createElement('img');
+        img.style.display = 'none';
+        
+        // 2. L'afegim físicament a la pàgina perquè OpenCV el reconegui
+        document.body.appendChild(img); 
+        
         const url = URL.createObjectURL(file);
-        img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
-        img.onerror = () => { URL.revokeObjectURL(url); reject(new Error(translations[currentLang].errLoadImg)); };
+        
+        img.onload = () => { 
+          resolve(img); 
+          // 3. Un cop OpenCV ha fet la seva feina, netegem la memòria i esborrem la imatge oculta
+          setTimeout(() => {
+            URL.revokeObjectURL(url);
+            if (img.parentNode) document.body.removeChild(img);
+          }, 2500);
+        };
+        
+        img.onerror = () => { 
+          if (img.parentNode) document.body.removeChild(img);
+          reject(new Error(translations[currentLang].errLoadImg)); 
+        };
+        
         img.src = url;
       });
     }
+    
+    
 
     function redrecarImatge(imgElement) {
       let src = cv.imread(imgElement); let dst = new cv.Mat();
@@ -1109,6 +1159,15 @@
   </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
 
 
 
