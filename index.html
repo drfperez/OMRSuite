@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OMR Suite - Generator & Corrector</title>
+  <title>OMR Suite Complete - Generator, Personalizer & Corrector</title>
 
-  <!-- jsPDF for PDF generation -->
+  <!-- jsPDF per a la generació de PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <!-- OpenCV.js for OMR correction -->
+  <!-- OpenCV.js per a la correcció automàtica -->
   <script async src="https://docs.opencv.org/4.8.0/opencv.js" onload="onOpenCvReady();"></script>
 
   <style>
     /* ==========================================
-       CSS STYLES
+       ESTILS CSS UNIFICATS
        ========================================== */
     :root {
       --bg-color: #f1f5f9;
@@ -41,7 +41,7 @@
       margin: 0 auto;
     }
 
-    /* Language Selector */
+    /* Selector d'idioma */
     .lang-selector {
       display: flex;
       justify-content: flex-end;
@@ -67,16 +67,17 @@
     header h1 { margin: 0; color: var(--primary); }
     header p { color: var(--text-muted); margin-top: 0.5rem; }
 
-    /* Tabs */
+    /* Pestanyes (Tabs) */
     .tabs {
       display: flex;
       gap: 0.5rem;
       margin-bottom: 1rem;
       justify-content: center;
+      flex-wrap: wrap;
     }
     .tab-btn {
-      padding: 0.75rem 2rem;
-      font-size: 1rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 0.95rem;
       font-weight: bold;
       background: var(--card-bg);
       border: 2px solid var(--border);
@@ -108,7 +109,8 @@
     }
 
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-    @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+    @media (max-width: 768px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
 
     .form-group { margin-bottom: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; }
     label { font-weight: 600; font-size: 0.95rem; }
@@ -143,9 +145,9 @@
     .btn-secondary { background-color: var(--secondary); color: white; }
     .btn-secondary:hover { background-color: var(--secondary-hover); }
 
-    .btn-success { background-color: var(--success); color: white; width: 100%; margin-top: 1rem;}
+    .btn-success { background-color: var(--success); color: white; width: 100%; margin-top: 1rem; }
 
-    .status-msg { margin-top: 1rem; font-size: 0.9rem; font-weight: bold; color: var(--success); text-align: center; }
+    .status-msg { margin-top: 1rem; font-size: 0.95rem; font-weight: bold; color: var(--success); text-align: center; }
 
     #opencv-status {
       display: inline-block;
@@ -169,7 +171,7 @@
 
   <div class="container">
 
-    <!-- Language Selector -->
+    <!-- Selector d'idioma -->
     <div class="lang-selector">
       <button class="lang-btn" onclick="setLang('en')" id="btn-en">English</button>
       <button class="lang-btn" onclick="setLang('es')" id="btn-es">Español</button>
@@ -177,29 +179,29 @@
     </div>
 
     <header>
-      <h1 data-i18n="mainTitle">Suite OMR: Generador i Corrector</h1>
-      <p data-i18n="mainSubtitle">Solució completa per crear i avaluar exàmens tipus test amb OpenCV i bombolles circulars</p>
+      <h1 data-i18n="mainTitle">Suite OMR Integral</h1>
+      <p data-i18n="mainSubtitle">Generador, Personalitzador per Llista i Corrector Automàtic d'Exàmens amb OpenCV</p>
     </header>
 
-    <!-- Tabs Navigation -->
+    <!-- Navegació per Pestanyes -->
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab('gen')" id="tab-btn-gen" data-i18n="tabGen">1. Generador d'Exàmens</button>
-      <button class="tab-btn" onclick="switchTab('corr')" id="tab-btn-corr" data-i18n="tabCorr">2. Corrector Automàtic</button>
+      <button class="tab-btn" onclick="switchTab('list')" id="tab-btn-list" data-i18n="tabList">2. Personalitzador per Llista</button>
+      <button class="tab-btn" onclick="switchTab('corr')" id="tab-btn-corr" data-i18n="tabCorr">3. Corrector Automàtic</button>
     </div>
 
     <!-- ==============================================
-         TAB 1: GENERADOR 
+         PESTANYA 1: GENERADOR GENERAL
          ============================================== -->
     <div id="tab-gen" class="tab-content active">
 
-      <!-- Professor Key -->
+      <!-- Pauta del Professor -->
       <section class="card">
         <h2 data-i18n="genSec1Title">Pauta del Professor</h2>
         
-        <!-- Dynamic Questions Input -->
         <div class="form-group">
-          <label for="num-questions" data-i18n="genNumQuestions">Nombre de preguntes (Max 100):</label>
-          <input type="number" id="num-questions" value="100" min="1" max="100">
+          <label for="num-questions-gen" data-i18n="genNumQuestions">Nombre de preguntes (Màx 150):</label>
+          <input type="number" id="num-questions-gen" value="150" min="1" max="150">
         </div>
 
         <div class="form-group">
@@ -216,17 +218,17 @@
         <div id="status-pauta" class="status-msg"></div>
       </section>
 
-      <!-- Test Students -->
+      <!-- Alumnes de Prova -->
       <section class="card">
         <h2 data-i18n="genSec2Title">Generador d'Alumnes de Prova</h2>
         <p style="color: var(--text-muted); font-size: 0.9rem;" data-i18n="genSec2Desc">
-          Això generarà 5 imatges amb números d'ID i respostes aleatòries per provar el corrector.
+          Genera 5 imatges d'exemple amb IDs i respostes aleatòries per provar el corrector.
         </p>
         <button id="btn-generar-alumnes" class="btn btn-success" data-i18n="genBtnStudents">🎓 Generar 5 Exàmens de Prova (JPG)</button>
         <div id="status-alumnes" class="status-msg"></div>
       </section>
 
-      <!-- Blank Template -->
+      <!-- Plantilla BUIDA -->
       <section class="card">
         <h2 data-i18n="genSec3Title">Plantilla en Blanc</h2>
         <p style="color: var(--text-muted); font-size: 0.9rem;" data-i18n="genSec3Desc">
@@ -242,7 +244,45 @@
     </div>
 
     <!-- ==============================================
-         TAB 2: CORRECTOR 
+         PESTANYA 2: PERSONALITZADOR PER LLISTA
+         ============================================== -->
+    <div id="tab-list" class="tab-content">
+      <section class="card">
+        <h2 data-i18n="listSecTitle">Generador d'Exàmens Personalitzats per Llista</h2>
+        
+        <div class="grid-3">
+          <div class="form-group">
+            <label for="assignatura-list" data-i18n="lblSubject">Assignatura:</label>
+            <input type="text" id="assignatura-list" placeholder="Ex: Història">
+          </div>
+          <div class="form-group">
+            <label for="grup-list" data-i18n="lblGroup">Grup:</label>
+            <input type="text" id="grup-list" placeholder="Ex: 2A">
+          </div>
+          <div class="form-group">
+            <label for="data-list" data-i18n="lblDate">Data:</label>
+            <input type="text" id="data-list" placeholder="Ex: 27/05/2026">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="num-questions-list" data-i18n="lblNumQList">Nombre de preguntes (Màx 150):</label>
+          <input type="number" id="num-questions-list" value="50" min="1" max="150">
+        </div>
+
+        <div class="form-group">
+          <label for="llista-alumnes" data-i18n="lblList">Llista d'Alumnes (Format: Nom, ID):</label>
+          <small style="color: var(--text-muted);" data-i18n="smallList">Un alumne per línia separat per coma. L'ID pot estar entre 00 i 99.</small>
+          <textarea id="llista-alumnes" rows="8" placeholder="Joan Perez, 01&#10;Maria Garcia, 12&#10;Albert Pou, 35"></textarea>
+        </div>
+
+        <button id="btn-generar-llista" class="btn btn-primary" data-i18n="btnGenerateList">📄 Generar i Descarregar PDF Únic</button>
+        <div id="status-list" class="status-msg"></div>
+      </section>
+    </div>
+
+    <!-- ==============================================
+         PESTANYA 3: CORRECTOR AUTOMÀTIC
          ============================================== -->
     <div id="tab-corr" class="tab-content">
 
@@ -264,6 +304,10 @@
             </div>
           </div>
           <div>
+            <div class="form-group">
+              <label for="num-questions-corr" data-i18n="corrNumQCorr">Nombre de preguntes a avaluar:</label>
+              <input type="number" id="num-questions-corr" value="150" min="1" max="150">
+            </div>
             <div class="form-group">
               <label for="penalitzacio-input" data-i18n="corrLabelPenalty">Penalització per error (Punts):</label>
               <input type="text" id="penalitzacio-input" value="0.25">
@@ -297,7 +341,7 @@
         <button id="btn-csv" class="btn btn-success" style="display: none;" data-i18n="corrBtnCsv">Descarregar Resultats en CSV</button>
       </section>
 
-      <!-- Hidden Elements for OpenCV -->
+      <!-- Elements ocults per a OpenCV -->
       <img id="img-hidden" style="display:none;">
       <canvas id="omr-canvas" style="display:none;"></canvas>
     </div>
@@ -306,117 +350,159 @@
 
   <script>
     /* ==========================================
-       SHARED GEOMETRY CONSTANTS
+       CONSTANTS DE GEOMETRIA UNIFICADES
        ========================================== */
     const TEMPLATE_W = 1050;
     const TEMPLATE_H = 1485;
     const SCALE = 5;
     
-    // Circular Properties
-    const CIRCLE_RADIUS = 8; // Més separació
-    const ROI_SIZE = 10;     // Quadrat intern més petit (menys falsos positius)
+    // Propietats de les bombolles
+    const CIRCLE_RADIUS = 8;
+    const ROI_SIZE = 10;
     const OPTIONS = ['A', 'B', 'C', 'D'];
 
-    // Correcting Specifics
-    const X_START_ID = 320;
-    const Y_DESENES = 175;
-    const Y_UNITATS = 220;
-    const ID_STEP_X = 40;
-    const X_COLS_DIRECTES = [ [175, 225, 275, 325], [575, 625, 675, 725] ];
+    // Coordenades d'ID Alumne (Desenes i Unitats del 0 al 9)
+    const X_START_ID = 330;
+    const Y_DESENES = 160;
+    const Y_UNITATS = 205;
+    const ID_STEP_X = 35;
+    
+    // 3 Columnes distribuïdes sense solapar amb les fites (Fites a X: 60 i X: 990)
+    const X_COLS_DIRECTES = [ 
+      [150, 190, 230, 270], 
+      [450, 490, 530, 570], 
+      [750, 790, 830, 870] 
+    ];
 
     /* ==========================================
-       I18N (TRANSLATIONS)
+       TRADUCCIONS (I18N)
        ========================================== */
     const translations = {
-      en: {
-        mainTitle: "OMR Suite: Generator & Corrector",
-        mainSubtitle: "Complete solution to create and evaluate multiple-choice exams with circular bubbles",
-        tabGen: "1. Exam Generator",
-        tabCorr: "2. Automatic Corrector",
+      ca: {
+        mainTitle: "Suite OMR Integral",
+        mainSubtitle: "Generador, Personalitzador per Llista i Corrector Automàtic d'Exàmens amb OpenCV",
+        tabGen: "1. Generador d'Exàmens",
+        tabList: "2. Personalitzador per Llista",
+        tabCorr: "3. Corrector Automàtic",
 
-        // Gen Strings
-        genSec1Title: "Teacher Answer Key",
-        genNumQuestions: "Number of questions (Max 100):",
-        genSec1Label: "Answers (continuous letters A, B, C, or D):",
-        genBtnRand: "🎲 Generate Random",
-        genBtnDlPng: "📥 Download Key (JPG)",
-        genBtnDlPdf: "📄 Download Key (PDF)",
-        genSec2Title: "Test Student Generator",
-        genSec2Desc: "This generates 5 images with random IDs and answers to test the corrector.",
-        genBtnStudents: "🎓 Generate 5 Test Exams (JPG)",
-        genSec3Title: "Blank Template",
-        genSec3Desc: "Download the blank template to print and distribute to students.",
-        genBtnBlankPng: "📥 Download BLANK (JPG)",
-        genBtnBlankPdf: "📄 Download BLANK (PDF)",
-        alertLength: "Warning: The answer key length must match your questions. Detected ",
-        alertLetters: " letters.",
-        statusPautaPng: "JPG Key downloaded!",
-        statusPautaPdf: "PDF Key downloaded!",
-        statusGenerating: "Generating exams...",
-        statusStudentsDone: "5 student exams downloaded!",
-        statusBlankPng: "Blank JPG downloaded!",
-        statusBlankPdf: "Blank PDF downloaded!",
-        canvasName: "Name:", canvasSubject: "Subject:", canvasGroup: "Group:", canvasDate: "Date:",
-        canvasIdTens: "Student ID - Tens:", canvasIdUnits: "Student ID - Units:",
-        canvasTitlePauta: "ANSWER KEY (TEACHER)", canvasTitleStudent: "STUDENT EXAM (ID: ", canvasTitleBlank: "ANSWER SHEET",
+        genSec1Title: "Pauta del Professor",
+        genNumQuestions: "Nombre de preguntes (Màx 150):",
+        genSec1Label: "Respostes (lletres A, B, C o D contigües):",
+        genBtnRand: "🎲 Generar Aleatòries",
+        genBtnDlPng: "📥 Descarregar Pauta (JPG)",
+        genBtnDlPdf: "📄 Descarregar Pauta (PDF)",
+        genSec2Title: "Generador d'Alumnes de Prova",
+        genSec2Desc: "Genera 5 imatges d'exemple amb IDs i respostes aleatòries per provar el corrector.",
+        genBtnStudents: "🎓 Generar 5 Exàmens de Prova (JPG)",
+        genSec3Title: "Plantilla en Blanc",
+        genSec3Desc: "Descarrega la plantilla buida per imprimir i repartir als alumnes.",
+        genBtnBlankPng: "📥 Descarregar BUIDA (JPG)",
+        genBtnBlankPdf: "📄 Descarregar BUIDA (PDF)",
 
-        // Corr Strings
-        cvLoading: "Loading Artificial Intelligence engine (OpenCV)...",
-        cvReady: "OpenCV Engine Ready",
-        corrSec1Title: "Configuration and Upload",
-        corrLabelPauta: "Answer Key Image (Teacher):",
-        corrLabelExams: "Exams Images (Multiple):",
-        corrLabelPenalty: "Penalty per error (Points):",
-        corrSmallPenalty: "Example: 0.25, 0.25 or 0.",
-        corrBtnProcess: "Process All Exams",
-        corrLoadingMsg: "Aligning and processing images. This may take a while...",
-        corrSec2Title: "Grading Results",
-        corrThFile: "File", corrThId: "Student ID", corrThCorrect: "Correct", corrThErrors: "Errors", corrThBlank: "Blanks", corrThGrade: "Final Grade (/10)",
-        corrTdEmpty: "Upload files and click process.",
-        corrBtnCsv: "Download Results (CSV)",
-        alertCvNotReady: "OpenCV is still loading.", alertNoPauta: "Missing Answer Key.", alertNoExams: "Missing exam images.",
-        warnFiducial: "Fiducial markers not detected clearly. Emergency resizing applied.",
-        errLoadImg: "Error loading image.", errProcessing: "Error processing images.",
-        csvHeader: "File,Student ID,Correct,Errors,Blanks,Final Grade\n", noRead: "NOT READ"
+        listSecTitle: "Generador d'Exàmens Personalitzats per Llista",
+        lblSubject: "Assignatura:",
+        lblGroup: "Grup:",
+        lblDate: "Data:",
+        lblNumQList: "Nombre de preguntes (Màx 150):",
+        lblList: "Llista d'Alumnes (Format: Nom, ID):",
+        smallList: "Un alumne per línia separat per coma. L'ID pot estar entre 00 i 99.",
+        btnGenerateList: "📄 Generar i Descarregar PDF Únic",
+
+        alertLength: "Atenció: La pauta ha de tenir la longitud de preguntes exacta. Detectades ",
+        alertLetters: " lletres.",
+        alertNoStudents: "Si us plau, afegeix com a mínim un alumne a la llista.",
+        statusPautaPng: "Pauta JPG descarregada!",
+        statusPautaPdf: "Pauta PDF descarregada!",
+        statusGenerating: "Generant exàmens...",
+        statusGeneratingPdf: "Generant PDF amb ",
+        statusPages: " pàgina/es... Espera un moment.",
+        statusStudentsDone: "5 exàmens descarregats!",
+        statusBlankPng: "Plantilla JPG descarregada!",
+        statusBlankPdf: "Plantilla PDF descarregada!",
+        statusSuccessList: "PDF generat i descarregat amb èxit!",
+        statusErrorList: "Error en generar el PDF.",
+
+        canvasName: "Nom:", canvasSubject: "Assignatura:", canvasGroup: "Grup:", canvasDate: "Data:",
+        canvasIdTens: "ID Alumne - Desenes:", canvasIdUnits: "ID Alumne - Unitats:",
+        canvasTitlePauta: "PAUTA DE CORRECCIÓ (PROFESSOR)", 
+        canvasTitleStudent: "EXAMEN D'ALUMNE (ID: ", 
+        canvasTitleBlank: "FULL DE RESPOSTES",
+
+        cvLoading: "Carregant motor OpenCV...",
+        cvReady: "Motor OpenCV Preparat",
+        corrSec1Title: "Configuració i Càrrega",
+        corrLabelPauta: "Imatge Pauta de Correcció:",
+        corrLabelExams: "Imatges Exàmens (Múltiples):",
+        corrNumQCorr: "Nombre de preguntes a avaluar:",
+        corrLabelPenalty: "Penalització per error:",
+        corrSmallPenalty: "Exemple: 0.25, 0,25 o 0.",
+        corrBtnProcess: "Processar Tots els Exàmens",
+        corrLoadingMsg: "Alineant i processant imatges. Això pot trigar una mica...",
+        corrSec2Title: "Resultats de la Correcció",
+        corrThFile: "Fitxer", corrThId: "ID Alumne", corrThCorrect: "Encerts", corrThErrors: "Errors", corrThBlank: "Blancs", corrThGrade: "Nota Final (/10)",
+        corrTdEmpty: "Puja els fitxers i fes clic a processar.",
+        corrBtnCsv: "Descarregar Resultats (CSV)",
+        alertCvNotReady: "OpenCV encara s'està carregant.", alertNoPauta: "Falta la Pauta.", alertNoExams: "Falta pujar exàmens.",
+        warnFiducial: "No s'han detectat bé les fites. Redimensionat d'emergència.",
+        errLoadImg: "Error carregant la imatge.", errProcessing: "Error en processar imatges.",
+        csvHeader: "Fitxer,ID Alumne,Encerts,Errors,Blancs,Nota Final\n", noRead: "NO LLEGIT"
       },
       es: {
-        mainTitle: "Suite OMR: Generador y Corrector",
-        mainSubtitle: "Solución completa para crear y evaluar exámenes tipo test con burbujas circulares",
+        mainTitle: "Suite OMR Integral",
+        mainSubtitle: "Generador, Personalizador por Lista y Corrector Automático con OpenCV",
         tabGen: "1. Generador de Exámenes",
-        tabCorr: "2. Corrector Automático",
+        tabList: "2. Personalizador por Lista",
+        tabCorr: "3. Corrector Automático",
 
-        // Gen Strings
         genSec1Title: "Pauta del Profesor",
-        genNumQuestions: "Número de preguntas (Máx 100):",
+        genNumQuestions: "Número de preguntas (Máx 150):",
         genSec1Label: "Respuestas (letras A, B, C o D contiguas):",
         genBtnRand: "🎲 Generar Aleatorias",
         genBtnDlPng: "📥 Descargar Pauta (JPG)",
         genBtnDlPdf: "📄 Descargar Pauta (PDF)",
         genSec2Title: "Generador de Alumnos de Prueba",
-        genSec2Desc: "Esto genera 5 imágenes con IDs y respuestas aleatorias para probar el corrector.",
+        genSec2Desc: "Genera 5 imágenes de ejemplo con IDs y respuestas aleatorias para probar el corrector.",
         genBtnStudents: "🎓 Generar 5 Exámenes (JPG)",
         genSec3Title: "Plantilla en Blanco",
         genSec3Desc: "Descarga la plantilla vacía para imprimir y repartir a los alumnos.",
         genBtnBlankPng: "📥 Descargar VACÍA (JPG)",
         genBtnBlankPdf: "📄 Descargar VACÍA (PDF)",
+
+        listSecTitle: "Generador de Exámenes Personalizados por Lista",
+        lblSubject: "Asignatura:",
+        lblGroup: "Grupo:",
+        lblDate: "Fecha:",
+        lblNumQList: "Número de preguntas (Máx 150):",
+        lblList: "Lista de Alumnos (Formato: Nombre, ID):",
+        smallList: "Un alumno por línea separado por coma. El ID puede estar entre 00 y 99.",
+        btnGenerateList: "📄 Generar y Descargar PDF Único",
+
         alertLength: "Atención: La pauta debe tener la longitud exacta de preguntas. Detectadas ",
         alertLetters: " letras.",
+        alertNoStudents: "Por favor, añade como mínimo un alumno a la lista.",
         statusPautaPng: "¡Pauta JPG descargada!",
         statusPautaPdf: "¡Pauta PDF descargada!",
         statusGenerating: "Generando exámenes...",
+        statusGeneratingPdf: "Generando PDF con ",
+        statusPages: " página/s... Espera un momento.",
         statusStudentsDone: "¡5 exámenes descargados!",
         statusBlankPng: "¡Plantilla JPG descargada!",
         statusBlankPdf: "¡Plantilla PDF descargada!",
+        statusSuccessList: "¡PDF generado y descargado con éxito!",
+        statusErrorList: "Error al generar el PDF.",
+
         canvasName: "Nombre:", canvasSubject: "Asignatura:", canvasGroup: "Grupo:", canvasDate: "Fecha:",
         canvasIdTens: "ID Alumno - Decenas:", canvasIdUnits: "ID Alumno - Unidades:",
-        canvasTitlePauta: "PAUTA DE CORRECCIÓN (PROFESOR)", canvasTitleStudent: "EXAMEN DE ALUMNO (ID: ", canvasTitleBlank: "HOJA DE RESPUESTAS",
+        canvasTitlePauta: "PAUTA DE CORRECCIÓN (PROFESOR)", 
+        canvasTitleStudent: "EXAMEN DE ALUMNO (ID: ", 
+        canvasTitleBlank: "HOJA DE RESPUESTAS",
 
-        // Corr Strings
         cvLoading: "Cargando motor OpenCV...",
         cvReady: "Motor OpenCV Preparado",
         corrSec1Title: "Configuración y Carga",
         corrLabelPauta: "Imagen Pauta de Corrección:",
         corrLabelExams: "Imágenes Exámenes (Múltiples):",
+        corrNumQCorr: "Número de preguntas a evaluar:",
         corrLabelPenalty: "Penalización por error:",
         corrSmallPenalty: "Ejemplo: 0.25, 0,25 o 0.",
         corrBtnProcess: "Procesar Todos los Exámenes",
@@ -430,56 +516,74 @@
         errLoadImg: "Error cargando imagen.", errProcessing: "Error procesando imágenes.",
         csvHeader: "Archivo,ID Alumno,Aciertos,Errores,Blancos,Nota Final\n", noRead: "NO LEÍDO"
       },
-      ca: {
-        mainTitle: "Suite OMR: Generador i Corrector",
-        mainSubtitle: "Solució completa per crear i avaluar exàmens tipus test amb OpenCV i bombolles circulars",
-        tabGen: "1. Generador d'Exàmens",
-        tabCorr: "2. Corrector Automàtic",
+      en: {
+        mainTitle: "Complete OMR Suite",
+        mainSubtitle: "Generator, Student List Customizer & Automatic OpenCV Corrector",
+        tabGen: "1. Exam Generator",
+        tabList: "2. Student List Customizer",
+        tabCorr: "3. Automatic Corrector",
 
-        // Gen Strings
-        genSec1Title: "Pauta del Professor",
-        genNumQuestions: "Nombre de preguntes (Max 100):",
-        genSec1Label: "Respostes (lletres A, B, C o D contigües):",
-        genBtnRand: "🎲 Generar Aleatòries",
-        genBtnDlPng: "📥 Descarregar Pauta (JPG)",
-        genBtnDlPdf: "📄 Descarregar Pauta (PDF)",
-        genSec2Title: "Generador d'Alumnes de Prova",
-        genSec2Desc: "Això genera 5 imatges amb IDs i respostes aleatòries per provar el corrector.",
-        genBtnStudents: "🎓 Generar 5 Exàmens (JPG)",
-        genSec3Title: "Plantilla en Blanc",
-        genSec3Desc: "Descarrega la plantilla buida per imprimir i repartir als alumnes.",
-        genBtnBlankPng: "📥 Descarregar BUIDA (JPG)",
-        genBtnBlankPdf: "📄 Descarregar BUIDA (PDF)",
-        alertLength: "Atenció: La pauta ha de tenir la longitud de preguntes exacta. Detectades ",
-        alertLetters: " lletres.",
-        statusPautaPng: "Pauta JPG descarregada!",
-        statusPautaPdf: "Pauta PDF descarregada!",
-        statusGenerating: "Generant exàmens...",
-        statusStudentsDone: "5 exàmens descarregats!",
-        statusBlankPng: "Plantilla JPG descarregada!",
-        statusBlankPdf: "Plantilla PDF descarregada!",
-        canvasName: "Nom:", canvasSubject: "Assignatura:", canvasGroup: "Grup:", canvasDate: "Data:",
-        canvasIdTens: "ID Alumne - Desenes:", canvasIdUnits: "ID Alumne - Unitats:",
-        canvasTitlePauta: "PAUTA DE CORRECCIÓ (PROFESSOR)", canvasTitleStudent: "EXAMEN D'ALUMNE (ID: ", canvasTitleBlank: "FULL DE RESPOSTES",
+        genSec1Title: "Teacher Answer Key",
+        genNumQuestions: "Number of questions (Max 150):",
+        genSec1Label: "Answers (continuous letters A, B, C, or D):",
+        genBtnRand: "🎲 Generate Random",
+        genBtnDlPng: "📥 Download Key (JPG)",
+        genBtnDlPdf: "📄 Download Key (PDF)",
+        genSec2Title: "Test Student Generator",
+        genSec2Desc: "Generates 5 sample images with random IDs and answers to test the corrector.",
+        genBtnStudents: "🎓 Generate 5 Test Exams (JPG)",
+        genSec3Title: "Blank Template",
+        genSec3Desc: "Download the blank template to print and distribute to students.",
+        genBtnBlankPng: "📥 Download BLANK (JPG)",
+        genBtnBlankPdf: "📄 Download BLANK (PDF)",
 
-        // Corr Strings
-        cvLoading: "Carregant motor d'intel·ligència artificial (OpenCV)...",
-        cvReady: "Motor OpenCV Preparat",
-        corrSec1Title: "Configuració i Càrrega",
-        corrLabelPauta: "Imatge Pauta de Correcció:",
-        corrLabelExams: "Imatges Exàmens (Múltiples):",
-        corrLabelPenalty: "Penalització per error:",
-        corrSmallPenalty: "Exemple: 0.25, 0,25 o 0.",
-        corrBtnProcess: "Processar Tots els Exàmens",
-        corrLoadingMsg: "Alineant i processant imatges. Això pot trigar una mica...",
-        corrSec2Title: "Resultats de la Correcció",
-        corrThFile: "Fitxer", corrThId: "ID Alumne", corrThCorrect: "Encerts", corrThErrors: "Errors", corrThBlank: "Blancs", corrThGrade: "Nota Final (/10)",
-        corrTdEmpty: "Puja els fitxers i fes clic a processar.",
-        corrBtnCsv: "Descarregar Resultats (CSV)",
-        alertCvNotReady: "OpenCV encara s'està carregant.", alertNoPauta: "Falta la Pauta.", alertNoExams: "Falta pujar exàmens.",
-        warnFiducial: "No s'han detectat bé les fites. Redimensionat d'emergència.",
-        errLoadImg: "Error carregant la imatge.", errProcessing: "Error en processar imatges.",
-        csvHeader: "Fitxer,ID Alumne,Encerts,Errors,Blancs,Nota Final\n", noRead: "NO LLEGIT"
+        listSecTitle: "Customized Exam Generator from Student List",
+        lblSubject: "Subject:",
+        lblGroup: "Group:",
+        lblDate: "Date:",
+        lblNumQList: "Number of questions (Max 150):",
+        lblList: "Student List (Format: Name, ID):",
+        smallList: "One student per line separated by comma. ID can be between 00 and 99.",
+        btnGenerateList: "📄 Generate & Download Single PDF",
+
+        alertLength: "Warning: The answer key length must match your questions. Detected ",
+        alertLetters: " letters.",
+        alertNoStudents: "Please add at least one student to the list.",
+        statusPautaPng: "JPG Key downloaded!",
+        statusPautaPdf: "PDF Key downloaded!",
+        statusGenerating: "Generating exams...",
+        statusGeneratingPdf: "Generating PDF with ",
+        statusPages: " page(s)... Please wait.",
+        statusStudentsDone: "5 student exams downloaded!",
+        statusBlankPng: "Blank JPG downloaded!",
+        statusBlankPdf: "Blank PDF downloaded!",
+        statusSuccessList: "PDF generated and downloaded successfully!",
+        statusErrorList: "Error generating PDF.",
+
+        canvasName: "Name:", canvasSubject: "Subject:", canvasGroup: "Group:", canvasDate: "Date:",
+        canvasIdTens: "Student ID - Tens:", canvasIdUnits: "Student ID - Units:",
+        canvasTitlePauta: "ANSWER KEY (TEACHER)", 
+        canvasTitleStudent: "STUDENT EXAM (ID: ", 
+        canvasTitleBlank: "ANSWER SHEET",
+
+        cvLoading: "Loading OpenCV engine...",
+        cvReady: "OpenCV Engine Ready",
+        corrSec1Title: "Configuration and Upload",
+        corrLabelPauta: "Answer Key Image (Teacher):",
+        corrLabelExams: "Exams Images (Multiple):",
+        corrNumQCorr: "Number of questions to evaluate:",
+        corrLabelPenalty: "Penalty per error (Points):",
+        corrSmallPenalty: "Example: 0.25, 0.25 or 0.",
+        corrBtnProcess: "Process All Exams",
+        corrLoadingMsg: "Aligning and processing images. This may take a while...",
+        corrSec2Title: "Grading Results",
+        corrThFile: "File", corrThId: "Student ID", corrThCorrect: "Correct", corrThErrors: "Errors", corrThBlank: "Blanks", corrThGrade: "Final Grade (/10)",
+        corrTdEmpty: "Upload files and click process.",
+        corrBtnCsv: "Download Results (CSV)",
+        alertCvNotReady: "OpenCV is still loading.", alertNoPauta: "Missing Answer Key.", alertNoExams: "Missing exam images.",
+        warnFiducial: "Fiducial markers not detected clearly. Emergency resizing applied.",
+        errLoadImg: "Error loading image.", errProcessing: "Error processing images.",
+        csvHeader: "File,Student ID,Correct,Errors,Blanks,Final Grade\n", noRead: "NOT READ"
       }
     };
 
@@ -507,7 +611,7 @@
     }
 
     /* ==========================================
-       TAB SWITCHING
+       GESTIÓ DE PESTANYES
        ========================================== */
     function switchTab(tabId) {
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -518,99 +622,114 @@
     }
 
     /* ==========================================
-       SHARED HELPER
+       MOTOR DE DIBUIX UNIFICAT (CANVAS)
        ========================================== */
-    function getNumQuestions() {
-      const num = parseInt(document.getElementById('num-questions').value, 10);
-      return (isNaN(num) || num < 1) ? 100 : Math.min(num, 100);
-    }
+    function drawTemplate(opts = {}) {
+      const {
+        titleText = translations[currentLang].canvasTitleBlank,
+        nom = "",
+        idAlumne = "",
+        assignatura = "",
+        dataText = "",
+        grupText = "",
+        respostesArray = null,
+        numQuestions = 150
+      } = opts;
 
-    /* ==========================================
-       TAB 1: GENERATOR LOGIC
-       ========================================== */
-    function getRandLetter() { return OPTIONS[Math.floor(Math.random() * OPTIONS.length)]; }
-    function getRandID() { return `${Math.floor(Math.random() * 4)}${Math.floor(Math.random() * 10)}`; }
-    
-    function generateRandomPautaStr() {
-      let str = "";
-      const maxQ = getNumQuestions();
-      for(let i=0; i<maxQ; i++) str += getRandLetter();
-      return str;
-    }
-
-    function drawTemplate(titleText, idAlumne, respostesArray) {
       const t = translations[currentLang];
       const cvs = document.createElement('canvas');
       
-      // MULTIPLICADOR DE RESOLUCIÓ (x2 per a qualitat d'impremta)
-      const printScale = 2; 
+      const printScale = 2; // Alta resolució per impressió
       cvs.width = TEMPLATE_W * printScale; 
       cvs.height = TEMPLATE_H * printScale;
       
       const ctx = cvs.getContext('2d');
-      
-      // Escalem el canvas per aprofitar els píxels extra sense modificar coordenades
       ctx.scale(printScale, printScale);
       
-      const maxQ = getNumQuestions();
+      const maxQ = Math.min(Math.max(parseInt(numQuestions, 10) || 150, 1), 150);
 
+      // Fons blanc
       ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, TEMPLATE_W, TEMPLATE_H);
       ctx.fillStyle = '#000000'; ctx.strokeStyle = '#000000'; ctx.font = '22px Arial, sans-serif';
 
-      ctx.fillText(t.canvasName, 70, 70); ctx.fillText(t.canvasSubject, 460, 70);
-      ctx.fillText(t.canvasGroup, 770, 70); ctx.fillText(t.canvasDate, 880, 70);
+      // Capçalera
+      ctx.fillText(t.canvasName, 60, 60);
+      if (nom) { ctx.font = 'bold 20px Arial, sans-serif'; ctx.fillText(nom, 125, 58); ctx.font = '22px Arial, sans-serif'; }
 
+      ctx.fillText(t.canvasSubject, 440, 60);
+      if (assignatura) { ctx.font = 'bold 20px Arial, sans-serif'; ctx.fillText(assignatura, 565, 58); ctx.font = '22px Arial, sans-serif'; }
+
+      ctx.fillText(t.canvasGroup, 740, 60);
+      if (grupText) { ctx.font = 'bold 20px Arial, sans-serif'; ctx.fillText(grupText, 800, 58); ctx.font = '22px Arial, sans-serif'; }
+
+      ctx.fillText(t.canvasDate, 860, 60);
+      if (dataText) { ctx.font = 'bold 20px Arial, sans-serif'; ctx.fillText(dataText, 920, 58); ctx.font = '22px Arial, sans-serif'; }
+
+      // Línies subratllat capçalera
       ctx.beginPath();
-      ctx.moveTo(150, 72); ctx.lineTo(440, 72);  
-      ctx.moveTo(590, 72); ctx.lineTo(750, 72);  
-      ctx.moveTo(835, 72); ctx.lineTo(860, 72);  
-      ctx.moveTo(945, 72); ctx.lineTo(980, 72);  
+      ctx.moveTo(120, 62); ctx.lineTo(420, 62);  
+      ctx.moveTo(560, 62); ctx.lineTo(725, 62);  
+      ctx.moveTo(795, 62); ctx.lineTo(845, 62);  
+      ctx.moveTo(915, 62); ctx.lineTo(990, 62);  
       ctx.lineWidth = 1.5; ctx.stroke();
 
-      ctx.font = 'bold 32px Arial, sans-serif';
-      ctx.fillText(titleText, 70, 130);
-      ctx.beginPath(); ctx.moveTo(70, 145); ctx.lineTo(980, 145); ctx.lineWidth = 2; ctx.stroke();
+      // Títol central
+      ctx.font = 'bold 28px Arial, sans-serif';
+      ctx.fillText(titleText, 60, 115);
+      ctx.beginPath(); ctx.moveTo(60, 130); ctx.lineTo(990, 130); ctx.lineWidth = 2; ctx.stroke();
 
-      const markerSize = 50; 
-      const markers = [ { cx: 85, cy: 225 }, { cx: 965, cy: 225 }, { cx: 85, cy: 1395 }, { cx: 965, cy: 1395 } ];
+      // Fites de registre (Fiducials als 4 extrems)
+      const markerSize = 40; 
+      const markers = [ 
+        { cx: 60, cy: 160 }, 
+        { cx: 990, cy: 160 }, 
+        { cx: 60, cy: 1420 }, 
+        { cx: 990, cy: 1420 } 
+      ];
       ctx.fillStyle = '#000000';
       markers.forEach(m => { ctx.fillRect(m.cx - markerSize/2, m.cy - markerSize/2, markerSize, markerSize); });
 
-      ctx.font = '16px Arial, sans-serif';
-      ctx.fillText(t.canvasIdTens, 120, 188); ctx.fillText(t.canvasIdUnits, 120, 233);
+      // ID Alumne
+      ctx.font = '15px Arial, sans-serif';
+      ctx.fillText(t.canvasIdTens, 120, Y_DESENES + 12); 
+      ctx.fillText(t.canvasIdUnits, 120, Y_UNITATS + 12);
       ctx.lineWidth = 1.5;
 
-      // Draw ID Bubbles (Tens)
-      for(let i=0; i<4; i++) {
-        let cx = 320 + i * 40 + 15; let cy = 175 + 7.5; 
+      let idStr = idAlumne !== null && idAlumne !== undefined && idAlumne !== "" ? idAlumne.toString().trim().padStart(2, '0') : "";
+      let tens = idStr.length >= 2 ? parseInt(idStr.charAt(0), 10) : -1;
+      let units = idStr.length >= 2 ? parseInt(idStr.charAt(1), 10) : -1;
+
+      // Bombolles Desenes (0-9)
+      for(let i=0; i<10; i++) {
+        let cx = X_START_ID + i * ID_STEP_X + 15; let cy = Y_DESENES + 7.5; 
         ctx.beginPath(); ctx.arc(cx, cy, CIRCLE_RADIUS, 0, 2 * Math.PI); ctx.stroke();
         ctx.fillText(i, cx - 4, cy - 13);
-        if (idAlumne && idAlumne.charAt(0) == i) {
+        if (tens === i) {
           ctx.beginPath(); ctx.arc(cx, cy, CIRCLE_RADIUS, 0, 2 * Math.PI); ctx.fill();
         }
       }
-      // Draw ID Bubbles (Units)
+      // Bombolles Unitats (0-9)
       for(let i=0; i<10; i++) {
-        let cx = 320 + i * 40 + 15; let cy = 220 + 7.5;
+        let cx = X_START_ID + i * ID_STEP_X + 15; let cy = Y_UNITATS + 7.5;
         ctx.beginPath(); ctx.arc(cx, cy, CIRCLE_RADIUS, 0, 2 * Math.PI); ctx.stroke();
         ctx.fillText(i, cx - 4, cy - 13);
-        if (idAlumne && idAlumne.charAt(1) == i) {
+        if (units === i) {
           ctx.beginPath(); ctx.arc(cx, cy, CIRCLE_RADIUS, 0, 2 * Math.PI); ctx.fill();
         }
       }
 
+      // Columnes de Preguntes (fins a 150 distribuïdes en 3 columnes de 50)
       ctx.font = '14px Arial, sans-serif';
-      const numCols = maxQ <= 50 ? 1 : 2; // Check if we need the second column
+      const numCols = maxQ <= 50 ? 1 : (maxQ <= 100 ? 2 : 3);
       
       for (let col = 0; col < numCols; col++) {
-        for(let c=0; c<4; c++) ctx.fillText(OPTIONS[c], X_COLS_DIRECTES[col][c] + 10, 255);
+        for(let c=0; c<4; c++) ctx.fillText(OPTIONS[c], X_COLS_DIRECTES[col][c] + 10, 250);
         for (let i = 0; i < 50; i++) {
           let num = col * 50 + i + 1;
           if (num > maxQ) continue;
 
-          // 225 de separació vertical
           let y = Math.floor((53 + i * (225 / 49)) * SCALE); 
-          ctx.fillText(num, X_COLS_DIRECTES[col][0] - 30, y + 13);
+          ctx.fillText(num, X_COLS_DIRECTES[col][0] - 35, y + 13);
           
           for (let c = 0; c < 4; c++) {
             let cx = X_COLS_DIRECTES[col][c] + 15; 
@@ -628,7 +747,6 @@
       return cvs;
     }
 
-    // Funcions optimitzades per reduir el pes de la imatge de 25MB a ~1MB
     function downloadCanvasAsImage(cvs, filename) {
       cvs.toBlob(function(blob) {
         const link = document.createElement('a');
@@ -636,29 +754,40 @@
         link.href = URL.createObjectURL(blob);
         link.click();
         URL.revokeObjectURL(link.href);
-      }, 'image/jpeg', 0.85); // Format JPEG amb compressió 85%
+      }, 'image/jpeg', 0.85);
     }
 
     function downloadCanvasAsPDF(cvs, filename) {
       const { jsPDF } = window.jspdf;
-      // compress: true per habilitar la compressió nativa de jsPDF
       const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4', compress: true });
-      // Generem la imatge com a JPEG 85% en lloc d'un PNG sense compressió
       const imgData = cvs.toDataURL('image/jpeg', 0.85);
       
       pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
       pdf.save(filename);
     }
 
+    /* ==========================================
+       PESTANYA 1: GENERADOR GENERAL
+       ========================================== */
+    function getRandLetter() { return OPTIONS[Math.floor(Math.random() * OPTIONS.length)]; }
+    function getRandID() { return `${Math.floor(Math.random() * 10)}${Math.floor(Math.random() * 10)}`; }
+    
+    function generateRandomPautaStr(maxQ) {
+      let str = "";
+      for(let i=0; i<maxQ; i++) str += getRandLetter();
+      return str;
+    }
+
     document.getElementById('btn-rand-pauta').addEventListener('click', () => {
-      document.getElementById('pauta-manual').value = generateRandomPautaStr();
+      const maxQ = parseInt(document.getElementById('num-questions-gen').value, 10) || 150;
+      document.getElementById('pauta-manual').value = generateRandomPautaStr(maxQ);
     });
 
     function getPautaArray() {
-      const maxQ = getNumQuestions();
+      const maxQ = parseInt(document.getElementById('num-questions-gen').value, 10) || 150;
       let val = document.getElementById('pauta-manual').value.toUpperCase().replace(/[^ABCD]/g, '');
       if (val.length !== maxQ) {
-        alert(translations[currentLang].alertLength + val.length + ". Expected/Esperades/Esperadas: " + maxQ);
+        alert(translations[currentLang].alertLength + val.length + ". Expected: " + maxQ);
         return null;
       }
       return val.split('');
@@ -666,41 +795,131 @@
 
     document.getElementById('btn-dl-pauta-png').addEventListener('click', () => {
       const arr = getPautaArray(); if (!arr) return;
-      downloadCanvasAsImage(drawTemplate(translations[currentLang].canvasTitlePauta, null, arr), 'Pauta.jpg');
+      const numQ = parseInt(document.getElementById('num-questions-gen').value, 10) || 150;
+      const cvs = drawTemplate({ titleText: translations[currentLang].canvasTitlePauta, respostesArray: arr, numQuestions: numQ });
+      downloadCanvasAsImage(cvs, 'Pauta.jpg');
       document.getElementById('status-pauta').innerText = translations[currentLang].statusPautaPng;
     });
+
     document.getElementById('btn-dl-pauta-pdf').addEventListener('click', () => {
       const arr = getPautaArray(); if (!arr) return;
-      downloadCanvasAsPDF(drawTemplate(translations[currentLang].canvasTitlePauta, null, arr), 'Pauta.pdf');
+      const numQ = parseInt(document.getElementById('num-questions-gen').value, 10) || 150;
+      const cvs = drawTemplate({ titleText: translations[currentLang].canvasTitlePauta, respostesArray: arr, numQuestions: numQ });
+      downloadCanvasAsPDF(cvs, 'Pauta.pdf');
       document.getElementById('status-pauta').innerText = translations[currentLang].statusPautaPdf;
     });
 
     document.getElementById('btn-generar-alumnes').addEventListener('click', async () => {
       const btn = document.getElementById('btn-generar-alumnes'); btn.disabled = true;
       document.getElementById('status-alumnes').innerText = translations[currentLang].statusGenerating;
-      const maxQ = getNumQuestions();
+      const maxQ = parseInt(document.getElementById('num-questions-gen').value, 10) || 150;
 
       for (let i = 1; i <= 5; i++) {
-        const idA = getRandID(); const arr = generateRandomPautaStr().split('');
+        const idA = getRandID(); 
+        const arr = generateRandomPautaStr(maxQ).split('');
         for (let j = 0; j < maxQ; j++) if (Math.random() < 0.05) arr[j] = ""; 
-        downloadCanvasAsImage(drawTemplate(`${translations[currentLang].canvasTitleStudent}${idA})`, idA, arr), `Alumne_${idA}.jpg`);
-        await new Promise(r => setTimeout(r, 600));
+        const cvs = drawTemplate({
+          titleText: `${translations[currentLang].canvasTitleStudent}${idA})`,
+          idAlumne: idA,
+          respostesArray: arr,
+          numQuestions: maxQ
+        });
+        downloadCanvasAsImage(cvs, `Alumne_${idA}.jpg`);
+        await new Promise(r => setTimeout(r, 500));
       }
       document.getElementById('status-alumnes').innerText = translations[currentLang].statusStudentsDone;
       btn.disabled = false;
     });
 
     document.getElementById('btn-dl-buit-png').addEventListener('click', () => {
-      downloadCanvasAsImage(drawTemplate(translations[currentLang].canvasTitleBlank, null, null), 'Buit.jpg');
+      const numQ = parseInt(document.getElementById('num-questions-gen').value, 10) || 150;
+      const cvs = drawTemplate({ titleText: translations[currentLang].canvasTitleBlank, numQuestions: numQ });
+      downloadCanvasAsImage(cvs, 'Plantilla_Buida.jpg');
       document.getElementById('status-buit').innerText = translations[currentLang].statusBlankPng;
     });
+
     document.getElementById('btn-dl-buit-pdf').addEventListener('click', () => {
-      downloadCanvasAsPDF(drawTemplate(translations[currentLang].canvasTitleBlank, null, null), 'Buit.pdf');
+      const numQ = parseInt(document.getElementById('num-questions-gen').value, 10) || 150;
+      const cvs = drawTemplate({ titleText: translations[currentLang].canvasTitleBlank, numQuestions: numQ });
+      downloadCanvasAsPDF(cvs, 'Plantilla_Buida.pdf');
       document.getElementById('status-buit').innerText = translations[currentLang].statusBlankPdf;
     });
 
     /* ==========================================
-       TAB 2: CORRECTOR LOGIC (OPENCV)
+       PESTANYA 2: PERSONALITZADOR PER LLISTA
+       ========================================== */
+    document.getElementById('btn-generar-llista').addEventListener('click', () => {
+      const t = translations[currentLang];
+      const btn = document.getElementById('btn-generar-llista');
+      const status = document.getElementById('status-list');
+      
+      const assignatura = document.getElementById('assignatura-list').value.trim();
+      const grupText = document.getElementById('grup-list').value.trim();
+      const dataText = document.getElementById('data-list').value.trim();
+      let numQ = parseInt(document.getElementById('num-questions-list').value, 10) || 50;
+      if (numQ > 150) numQ = 150;
+
+      const linies = document.getElementById('llista-alumnes').value.trim().split('\n');
+      const alumnes = [];
+      
+      for(let linia of linies) {
+        if(!linia.trim()) continue;
+        let parts = linia.split(',');
+        if(parts.length >= 2) {
+          alumnes.push({ nom: parts[0].trim(), id: parts[1].trim() });
+        } else {
+          alumnes.push({ nom: linia.trim(), id: "" });
+        }
+      }
+
+      if(alumnes.length === 0) {
+        alert(t.alertNoStudents);
+        return;
+      }
+
+      btn.disabled = true;
+      status.style.color = "var(--primary)";
+      status.innerText = `${t.statusGeneratingPdf}${alumnes.length}${t.statusPages}`;
+      
+      setTimeout(() => {
+        try {
+          const { jsPDF } = window.jspdf;
+          const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4', compress: true });
+          
+          for (let i = 0; i < alumnes.length; i++) {
+            const al = alumnes[i];
+            const cvs = drawTemplate({
+              titleText: t.canvasTitleBlank,
+              nom: al.nom,
+              idAlumne: al.id,
+              assignatura: assignatura,
+              dataText: dataText,
+              grupText: grupText,
+              numQuestions: numQ
+            });
+            
+            const imgData = cvs.toDataURL('image/jpeg', 0.85);
+            if (i > 0) pdf.addPage();
+            pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
+          }
+
+          let safeAssignatura = assignatura ? assignatura.replace(/[^a-z0-9]/gi, '_') : 'Exàmens';
+          pdf.save(`Exàmens_Personalitzats_${safeAssignatura}.pdf`);
+          
+          status.style.color = "var(--success)";
+          status.innerText = t.statusSuccessList;
+        } catch (e) {
+          console.error(e);
+          status.style.color = "red";
+          status.innerText = t.statusErrorList;
+        } finally {
+          btn.disabled = false;
+        }
+      }, 100);
+    });
+
+    /* ==========================================
+       PESTANYA 3: CORRECTOR AUTOMÀTIC (OPENCV)
        ========================================== */
     let cvReady = false;
     function onOpenCvReady() {
@@ -736,7 +955,7 @@
       let markers = [];
       for (let i = 0; i < contours.size(); ++i) {
         let cnt = contours.get(i); let area = cv.contourArea(cnt);
-        if (area > 300 && area < 30000) {
+        if (area > 200 && area < 30000) {
           let rect = cv.boundingRect(cnt); let aspect = rect.width / rect.height;
           if (aspect >= 0.7 && aspect <= 1.3) {
             let hull = new cv.Mat(); cv.convexHull(cnt, hull, false, true);
@@ -750,7 +969,9 @@
         cnt.delete();
       }
 
-      markers.sort((a, b) => b.area - a.area); let topM = markers.slice(0, 4);
+      markers.sort((a, b) => b.area - a.area); 
+      let topM = markers.slice(0, 4);
+
       if (topM.length === 4) {
         topM.sort((a, b) => (a.x + a.y) - (b.x + b.y));
         let tl = topM[0], br = topM[3];
@@ -759,7 +980,7 @@
 
         let srcTri = cv.matFromArray(4, 1, cv.CV_32FC2, [tl.x, tl.y, tr.x, tr.y, bl.x, bl.y, br.x, br.y]);
         let dstTri = cv.matFromArray(4, 1, cv.CV_32FC2, [
-          85, 225, TEMPLATE_W - 85, 225, 85, 1395, TEMPLATE_W - 85, 1395
+          60, 160, TEMPLATE_W - 60, 160, 60, 1420, TEMPLATE_W - 60, 1420
         ]);
         let M = cv.getPerspectiveTransform(srcTri, dstTri);
         cv.warpPerspective(src, dst, M, new cv.Size(TEMPLATE_W, TEMPLATE_H));
@@ -769,7 +990,6 @@
         cv.resize(src, dst, new cv.Size(TEMPLATE_W, TEMPLATE_H), 0, 0, cv.INTER_AREA);
       }
       
-      // Ajustem el tamany del canvas intern al que espera l'OMR original (base)
       corrCvs.width = TEMPLATE_W;
       corrCvs.height = TEMPLATE_H;
       cv.imshow('omr-canvas', dst);
@@ -790,7 +1010,7 @@
 
     function llegirDadesCanvas(maxQ) {
       let d = -1, u = -1;
-      for (let i = 0; i < 4; i++) {
+      for (let i = 0; i < 10; i++) {
         if (esMarcaObscura(X_START_ID + i * ID_STEP_X + 15, Y_DESENES + 7.5)) d = i;
       }
       for (let i = 0; i < 10; i++) {
@@ -801,7 +1021,7 @@
       const respostes = [];
       let count = 0;
       
-      const numCols = maxQ <= 50 ? 1 : 2; // Ensure reading honors columns logic
+      const numCols = maxQ <= 50 ? 1 : (maxQ <= 100 ? 2 : 3);
 
       for (let col = 0; col < numCols; col++) {
         for (let i = 0; i < 50; i++) {
@@ -832,12 +1052,14 @@
       const examF = document.getElementById('examens-input').files;
       const pen = parseFloat(document.getElementById('penalitzacio-input').value.replace(',', '.')) || 0;
       const lMsg = document.getElementById('loading-msg');
-      const maxQ = getNumQuestions();
+      const maxQ = parseInt(document.getElementById('num-questions-corr').value, 10) || 150;
 
-      if (!pautaF) return alert(t.alertNoPauta); if (examF.length === 0) return alert(t.alertNoExams);
+      if (!pautaF) return alert(t.alertNoPauta); 
+      if (examF.length === 0) return alert(t.alertNoExams);
 
       lMsg.style.display = 'block';
-      const tbody = document.querySelector('#tabla-resultats tbody'); tbody.innerHTML = '';
+      const tbody = document.querySelector('#tabla-resultats tbody'); 
+      tbody.innerHTML = '';
       resultatsGlobals = [];
 
       try {
@@ -867,16 +1089,32 @@
         }
         document.getElementById('btn-csv').style.display = 'inline-block';
       } catch (e) {
-        console.error(e); alert(t.errProcessing);
-      } finally { lMsg.style.display = 'none'; }
+        console.error(e); 
+        alert(t.errProcessing);
+      } finally { 
+        lMsg.style.display = 'none'; 
+      }
     });
 
     document.getElementById('btn-csv').addEventListener('click', () => {
       let csv = "data:text/csv;charset=utf-8," + translations[currentLang].csvHeader;
       resultatsGlobals.forEach(r => { csv += `${r.fitxer},${r.idAlumne},${r.ok},${r.err},${r.bl},${r.final}\n`; });
-      const a = document.createElement("a"); a.href = encodeURI(csv); a.download = "resultats.csv";
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      const a = document.createElement("a"); 
+      a.href = encodeURI(csv); 
+      a.download = "resultats_omr.csv";
+      document.body.appendChild(a); 
+      a.click(); 
+      document.body.removeChild(a);
     });
   </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
