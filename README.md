@@ -52,3 +52,18 @@ Try the application directly in your web browser without downloading or installi
 ## 🚀 Quick Start
 
 Because this project is built as a single standalone HTML application, **no installation, build steps, or server setup is required**.
+
+---
+
+## 📸 Sample Answer Sheet
+
+Here is a preview of the standard 150-question A4 answer sheet template (`template.jpg`):
+
+<p align="center">
+  <img src="assets/template.jpg" alt="150-Question OMR Answer Sheet Template" width="600">
+</p>
+
+* **Capacity:** 150 Multiple Choice Questions (3 columns of 50).
+* **Options:** 4 options per question (A, B, C, D).
+* **Features:** 2-digit student ID area + 4 corner fiducial alignment markers.
+  
