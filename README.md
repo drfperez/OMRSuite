@@ -14,7 +14,8 @@
 
 Try the application directly in your web browser without downloading or installing anything:
 
-👉 **[https://drfperez.neocities.org/quiz/3languages/](https://drfperez.neocities.org/quiz/3languages/)**
+👉 **[Launch Live Demo](https://drfperez.neocities.org/quiz/3languages/)**
+
 
 ---
 
