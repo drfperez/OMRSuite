@@ -75,3 +75,13 @@ Web browsers enforce strict memory limits per tab. For grading large batches (hu
   ```bash
   pip install opencv-python pandas pillow
   python OMRSuite.py
+### 3. Native C++ Binary (For Maximum Desktop Speed)
+For dedicated local builds with minimal executable sizes and instant startup:
+
+#### Prerequisites
+* C++17 compliant compiler (`g++`, `clang++`, or MSVC)
+* [OpenCV 4.x C++ Development Libraries](https://opencv.org/releases/) installed
+
+#### Compilation (Linux / macOS / MinGW):
+```bash
+g++ -O3 main.cpp -o omr_engine `pkg-config --cflags --libs opencv4`
