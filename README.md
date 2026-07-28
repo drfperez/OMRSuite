@@ -9,14 +9,7 @@
 [![No Backend Needed](https://img.shields.io/badge/Architecture-Serverless%20%2F%20Client--side-success)](#)
 
 ---
-## ⚙️ How the Vision Pipeline Works
 
-1. **Thresholding & Contour Detection:** The scan is converted to grayscale and binarized using inverse thresholding.
-2. **Fiducial Marker Identification:** The engine searches for the 4 square orientation blocks located near the sheet corners.
-3. **Perspective Transformation (`warpPerspective`):** Using the centers of the 4 markers, a homography matrix is calculated to warp and normalize the image to a fixed `1050x1485` grid.
-4. **ROI Dark Pixel Ratio Analysis:** For every bubble coordinate, a region of interest (ROI) is sampled. If the ratio of dark pixels (`< 120` intensity) exceeds the threshold (`> 40%`), the bubble is registered as marked.
-
----
 ## 🌐 Live Demo
 
 Try the single-file web application directly in your browser with zero installation or setup:
@@ -63,6 +56,15 @@ Choose the right workflow based on your workload and environment:
 * **Web Engine:** HTML5, CSS3, Vanilla JavaScript (ES6+), OpenCV.js (WebAssembly), jsPDF, HTML5 Canvas.
 * **Python Engine:** Python 3.x, OpenCV (`opencv-python`), Pandas, Pillow, Google Colab.
 * **Native Engine:** Modern C++ (C++17), Native OpenCV 4.x.
+
+---
+
+## ⚙️ How the Vision Pipeline Works
+
+1. **Thresholding & Contour Detection:** The scan is converted to grayscale and binarized using inverse thresholding.
+2. **Fiducial Marker Identification:** The engine searches for the 4 square orientation blocks located near the sheet corners.
+3. **Perspective Transformation (`warpPerspective`):** Using the centers of the 4 markers, a homography matrix is calculated to warp and normalize the image to a fixed `1050x1485` grid.
+4. **ROI Dark Pixel Ratio Analysis:** For every bubble coordinate, a region of interest (ROI) is sampled. If the ratio of dark pixels (`< 120` intensity) exceeds the threshold (`> 40%`), the bubble is registered as marked.
 
 ---
 
