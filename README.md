@@ -1,6 +1,6 @@
 # 📝 Complete OMR Suite
 
-> **A 100% client-side, single-file web application to generate, personalize, and automatically grade Optical Mark Recognition (OMR) exam sheets using OpenCV.js and jsPDF.**
+> **A multi-engine, privacy-first solution to generate, personalize, and automatically grade Optical Mark Recognition (OMR) exam sheets.**
 
 [![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Try_it_Online-brightgreen?style=for-the-badge)](https://drfperez.neocities.org/quiz/3languages/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -12,102 +12,66 @@
 
 ## 🌐 Live Demo
 
-Try the application directly in your web browser without downloading or installing anything:
+Try the single-file web application directly in your browser with zero installation or setup:
 
-👉 **[Launch Live Demo](https://drfperez.neocities.org/quiz/3languages/)**
-
+👉 **[Launch Web Live Demo](https://drfperez.neocities.org/quiz/3languages/)**
 
 ---
 
 ## 🌟 Key Features
 
-* **🔒 Privacy-First & Offline Ready:** Everything runs directly in the user's web browser. No student data or exam images are ever uploaded to a server.
-* **⚡ Instant Access:** Test and use the app instantly via Neocities without setting up a local environment.
-* **📄 Integrated Exam Generator:**
+* **🔒 Privacy-First & Offline Ready:** Everything in the web app runs client-side inside the user's browser. No student data or exam scans ever touch a server.
+* **📄 Integrated Sheet & Pauta Generator:**
   * Generate blank exam templates (up to 150 questions, 4 options: A, B, C, D).
-  * Generate filled teacher answer keys in high-resolution JPG or printable A4 PDF.
-  * Create realistic dummy student exam sheets for testing.
-* **👥 Personalized Student List Generator:**
-  * Batch-generate customized, multi-page PDFs from a simple student list (`Name, ID`).
-  * Automatically pre-prints student names, exam headers, and bubbled numeric ID codes (00–99).
-* **🤖 Automatic Computer Vision Grading (OpenCV.js):**
-  * **Automatic Alignment:** Detects 4-corner square fiducial markers to warp perspective and correct page rotation/distortion automatically.
-  * **Bubble Intensity Reading:** Measures pixel darkness inside predefined Regions of Interest (ROI) to accurately extract bubbled answers and IDs.
-  * **Configurable Penalties:** Custom scoring formula with configurable negative points for wrong answers.
-  * **CSV Export:** Export full grading reports (Student ID, Correct, Errors, Blanks, Final Score /10) with one click.
-* **🌍 Multilingual Interface:** Native support for **English**, **Spanish (Español)**, and **Catalan (Català)**.
+  * Generate filled teacher answer keys (*pautas*) in high-resolution JPG or printable A4 PDF.
+  * Create dummy student exam sheets for testing and validation.
+* **👥 Personalization Engine:**
+  * Batch-generate multi-page PDFs customized for specific classes.
+  * Pre-prints student names, exam titles, headers, and bubbled 2-digit numeric IDs (00–99).
+* **🤖 Computer Vision Pipeline:**
+  * **Perspective Correction:** Uses 4-corner fiducial alignment markers to automatically correct rotation, tilt, and perspective skew.
+  * **Bubble Intensity Extraction:** Measures ROI pixel density to accurately read marked choices and IDs.
+  * **Custom Scoring:** Flexible penalty formula for wrong answers, automatic handling of blank or multiple-bubble invalid marks.
+  * **CSV Reporting:** One-click export with Student ID, Correct, Errors, Blanks, and Final Score (/10).
+* **🌍 Multilingual Interface:** Native UI support for **English**, **Spanish (Español)**, and **Catalan (Català)**.
+
+---
+
+## 📊 Processing Engine Comparison
+
+Choose the right workflow based on your workload and environment:
+
+| Feature / Metric | 🌐 Web App (OpenCV.js) | 🐍 Python / Google Colab | ⚡ Native C++ Binary |
+| :--- | :--- | :--- | :--- |
+| **Primary Use Case** | Standard classroom grading, zero setup | Heavy bulk processing, cloud pipelines | Max performance, standalone desktop app |
+| **Installation** | 🟢 None (Runs in browser) | 🟡 Google Colab or Python 3.x | 🔴 Compiler & OpenCV required |
+| **Batch Capacity** | ~50–100 exams per batch | 🟢 Unlimited (Cloud/System RAM) | 🟢 Unlimited |
+| **Startup Speed** | 🟢 Instant | 🟡 Medium (Interpreter load) | 🟢 Instant (< 0.01s) |
+| **Executable Size** | N/A (Single HTML file) | ~150–200 MB (if built via `.exe`) | 🟢 ~5–10 MB standalone |
 
 ---
 
 ## 🛠️ Tech Stack
 
-* **Frontend:** HTML5, CSS3 (CSS Variables, Flexbox, Grid), Vanilla JavaScript (ES6+)
-* **Computer Vision:** [OpenCV.js 4.8.0](https://docs.opencv.org/) (WebAssembly/JS build)
-* **PDF Generation:** [jsPDF 2.5.1](https://github.com/parallax/jsPDF)
-* **Rendering Engine:** HTML5 Canvas API (High-DPI rendering for crisp printing)
-* **Hosting:** [Neocities](https://neocities.org/)
+* **Web Engine:** HTML5, CSS3, Vanilla JavaScript (ES6+), OpenCV.js (WebAssembly), jsPDF, HTML5 Canvas.
+* **Python Engine:** Python 3.x, OpenCV (`opencv-python`), Pandas, Pillow, Google Colab.
+* **Native Engine:** Modern C++ (C++17), Native OpenCV 4.x.
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Quick Start & Usage Guide
 
-Because this project is built as a single standalone HTML application, **no installation, build steps, or server setup is required**.
+### 1. Web Application (Zero Setup)
+1. Open the [Live Demo](https://drfperez.neocities.org/quiz/3languages/) or download `index.html` locally.
+2. Open `index.html` in any web browser.
+3. Generate your answer sheets, upload the teacher key image, and grade student sheets directly.
 
----
+### 2. Python & Google Colab (For Heavy Workloads)
+Web browsers enforce strict memory limits per tab. For grading large batches (hundreds of high-res images), use the included Jupyter notebook:
 
-## 🐍 Python & Google Colab Alternative (For Bulk Processing)
+👉 **[Open Notebook in Google Colab](https://colab.research.google.com/github/drfperez/OMRSuite/blob/main/OMRSuite.ipynb)**
 
-While the HTML web application is perfect for everyday use, maximum privacy, and zero-setup, web browsers impose strict memory (RAM) limits on individual tabs. Grading hundreds of high-resolution images simultaneously using WebAssembly (OpenCV.js) inside a single browser tab can sometimes lead to memory crashes.
-
-To solve this, this repository also includes a **Jupyter Notebook (`OMR_Suite_Colab.ipynb`)** designed specifically for heavy workloads. 
-
-**Why use the `.ipynb` version?**
-* **Unlimited Batch Processing:** Grade hundreds or thousands of exams in a single run without worrying about browser RAM limitations.
-* **Native Speeds:** Utilizes native Python and C++ OpenCV bindings for lightning-fast image alignment and reading.
-* **Cloud or Local:** Run it locally via Jupyter/VSCode or execute it instantly in the cloud using Google Colab.
-* **Automated Data Tabulation:** Automatically generates structured pandas DataFrames and exports clean CSV reports.
-
-👉 **[Open the Notebook in Google Colab](https://colab.research.google.com/github/drfperez/OMRSuite/blob/main/OMRSuite.ipynb)** 
-
----
-
-## ⚡ Native C++ Engine (Ultra-Fast & Lightweight Binary)
-
-For environments where startup speed, executable size, and minimal RAM footprint are critical, this repository also includes a native **C++ implementation (`main.cpp`)** powered by OpenCV 4.
-
-While the Web interface is ideal for zero-setup use and Python/Colab is built for cloud batch processing, the native C++ binary provides the ultimate desktop performance.
-
-### 🌟 Why use the C++ Native version?
-
-* **⚡ Instant Execution:** Launches in milliseconds (`< 0.01s`) with zero interpreter overhead or unzipping delay.
-* **🪶 Ultra-Lightweight:** Compiles into a tiny standalone binary (~5–10 MB) with negligible RAM consumption.
-* **🚀 Maximum CPU Efficiency:** Executes native C++ computer vision algorithms directly on system hardware.
-* **📦 Portable Distribution:** Can be compiled into a single portable `.exe` for Windows 11 without needing Python or runtime dependencies installed.
-
----
-
-### 🛠️ Quick Compilation Guide
-
-#### Prerequisites
-* C++17 compliant compiler (`g++`, `clang++`, or MSVC)
-* [OpenCV 4.x C++ Development Libraries](https://opencv.org/releases/) installed
-
-#### Compiling on Linux / macOS (GCC):
-```bash
-g++ -O3 main.cpp -o omr_engine `pkg-config --cflags --libs opencv4`
-
-
----
-
-## 📸 Sample Answer Sheet
-
-Here is a preview of the standard 150-question A4 answer sheet template (`template.jpg`):
-
-<p align="center">
-  <img src="assets/template.jpg" alt="150-Question OMR Answer Sheet Template" width="600">
-</p>
-
-* **Capacity:** 150 Multiple Choice Questions (3 columns of 50).
-* **Options:** 4 options per question (A, B, C, D).
-* **Features:** 2-digit student ID area + 4 corner fiducial alignment markers.
-  
+* **Local Python Execution:**
+  ```bash
+  pip install opencv-python pandas pillow
+  python OMRSuite.py
