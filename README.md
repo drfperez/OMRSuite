@@ -94,3 +94,25 @@ For dedicated local builds with minimal executable sizes and instant startup:
 #### Compilation (Linux / macOS / MinGW):
 ```bash
 g++ -O3 main.cpp -o omr_engine `pkg-config --cflags --libs opencv4`
+
+---
+
+## 📸 Sample Answer Sheet
+
+Below is a preview of the standard A4 150-question OMR template (`template.jpg`):
+
+<p align="center">
+  <img src="assets/template.jpg" alt="150-Question OMR Answer Sheet Template" width="600">
+</p>
+
+* **Capacity:** 150 Multiple Choice Questions (3 columns of 50).
+* **Options:** 4 options per question (A, B, C, D).
+* **ID Area:** 2-digit numeric student ID grid (00–99).
+* **Alignment:** 4 corner fiducial registration markers.
+
+---
+
+## 📄 License
+
+This project is open-source and available under the [MIT License](LICENSE).
+
