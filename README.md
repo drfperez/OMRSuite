@@ -117,4 +117,3 @@ Below is a preview of the standard A4 150-question OMR template (`template.jpg`)
 ## 📄 License
 
 This project is open-source and available under the [MIT License](LICENSE).
-
