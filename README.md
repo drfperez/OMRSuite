@@ -67,8 +67,7 @@ To solve this, this repository also includes a **Jupyter Notebook (`OMR_Suite_Co
 * **Cloud or Local:** Run it locally via Jupyter/VSCode or execute it instantly in the cloud using Google Colab.
 * **Automated Data Tabulation:** Automatically generates structured pandas DataFrames and exports clean CSV reports.
 
-👉 **[Open the Notebook in Google Colab](https://colab.research.google.com/github/drfperez/OMRSuite/blob/main/OMRSuite.ipynb)** *(Remember to update this URL with your actual GitHub path!)*
-
+👉 **[Open the Notebook in Google Colab](https://colab.research.google.com/github/drfperez/OMRSuite/blob/main/OMRSuite.ipynb)** 
 
 ---
 
