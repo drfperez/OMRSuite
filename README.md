@@ -84,6 +84,8 @@ Web browsers enforce strict memory limits per tab. For grading large batches (hu
   ```bash
   pip install opencv-python pandas pillow
   python OMRSuite.py
+
+  
 ### 3. Native C++ Binary (For Maximum Desktop Speed)
 For dedicated local builds with minimal executable sizes and instant startup:
 
