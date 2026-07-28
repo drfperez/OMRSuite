@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ca">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OMR Suite Complete - Generator, Personalizer & Corrector</title>
+  <title>Complete OMR Suite - Generator, Student List Customizer & Automatic OpenCV Corrector</title>
 
   <!-- jsPDF per a la generació de PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -173,21 +173,21 @@
 
     <!-- Selector d'idioma -->
     <div class="lang-selector">
-      <button class="lang-btn" onclick="setLang('en')" id="btn-en">English</button>
+      <button class="lang-btn active" onclick="setLang('en')" id="btn-en">English</button>
       <button class="lang-btn" onclick="setLang('es')" id="btn-es">Español</button>
-      <button class="lang-btn active" onclick="setLang('ca')" id="btn-ca">Català</button>
+      <button class="lang-btn" onclick="setLang('ca')" id="btn-ca">Català</button>
     </div>
 
     <header>
-      <h1 data-i18n="mainTitle">Suite OMR Integral</h1>
-      <p data-i18n="mainSubtitle">Generador, Personalitzador per Llista i Corrector Automàtic d'Exàmens amb OpenCV</p>
+      <h1 data-i18n="mainTitle">Complete OMR Suite</h1>
+      <p data-i18n="mainSubtitle">Generator, Student List Customizer & Automatic OpenCV Corrector</p>
     </header>
 
     <!-- Navegació per Pestanyes -->
     <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('gen')" id="tab-btn-gen" data-i18n="tabGen">1. Generador d'Exàmens</button>
-      <button class="tab-btn" onclick="switchTab('list')" id="tab-btn-list" data-i18n="tabList">2. Personalitzador per Llista</button>
-      <button class="tab-btn" onclick="switchTab('corr')" id="tab-btn-corr" data-i18n="tabCorr">3. Corrector Automàtic</button>
+      <button class="tab-btn active" onclick="switchTab('gen')" id="tab-btn-gen" data-i18n="tabGen">1. Exam Generator</button>
+      <button class="tab-btn" onclick="switchTab('list')" id="tab-btn-list" data-i18n="tabList">2. Student List Customizer</button>
+      <button class="tab-btn" onclick="switchTab('corr')" id="tab-btn-corr" data-i18n="tabCorr">3. Automatic Corrector</button>
     </div>
 
     <!-- ==============================================
@@ -197,46 +197,46 @@
 
       <!-- Pauta del Professor -->
       <section class="card">
-        <h2 data-i18n="genSec1Title">Pauta del Professor</h2>
+        <h2 data-i18n="genSec1Title">Teacher Answer Key</h2>
         
         <div class="form-group">
-          <label for="num-questions-gen" data-i18n="genNumQuestions">Nombre de preguntes (Màx 150):</label>
+          <label for="num-questions-gen" data-i18n="genNumQuestions">Number of questions (Max 150):</label>
           <input type="number" id="num-questions-gen" value="150" min="1" max="150">
         </div>
 
         <div class="form-group">
-          <label for="pauta-manual" data-i18n="genSec1Label">Respostes (lletres A, B, C o D contigües):</label>
+          <label for="pauta-manual" data-i18n="genSec1Label">Answers (continuous letters A, B, C, or D):</label>
           <textarea id="pauta-manual" rows="3" placeholder="Ex: ABCDABCDABCD..."></textarea>
         </div>
         <div class="btn-group">
-          <button id="btn-rand-pauta" class="btn btn-secondary" data-i18n="genBtnRand">🎲 Generar Aleatòries</button>
+          <button id="btn-rand-pauta" class="btn btn-secondary" data-i18n="genBtnRand">🎲 Generate Random</button>
         </div>
         <div class="btn-group">
-          <button id="btn-dl-pauta-png" class="btn btn-primary" data-i18n="genBtnDlPng">📥 Descarregar Pauta (JPG)</button>
-          <button id="btn-dl-pauta-pdf" class="btn btn-primary" data-i18n="genBtnDlPdf">📄 Descarregar Pauta (PDF)</button>
+          <button id="btn-dl-pauta-png" class="btn btn-primary" data-i18n="genBtnDlPng">📥 Download Key (JPG)</button>
+          <button id="btn-dl-pauta-pdf" class="btn btn-primary" data-i18n="genBtnDlPdf">📄 Download Key (PDF)</button>
         </div>
         <div id="status-pauta" class="status-msg"></div>
       </section>
 
       <!-- Alumnes de Prova -->
       <section class="card">
-        <h2 data-i18n="genSec2Title">Generador d'Alumnes de Prova</h2>
+        <h2 data-i18n="genSec2Title">Test Student Generator</h2>
         <p style="color: var(--text-muted); font-size: 0.9rem;" data-i18n="genSec2Desc">
-          Genera 5 imatges d'exemple amb IDs i respostes aleatòries per provar el corrector.
+          Generates 5 sample images with random IDs and answers to test the corrector.
         </p>
-        <button id="btn-generar-alumnes" class="btn btn-success" data-i18n="genBtnStudents">🎓 Generar 5 Exàmens de Prova (JPG)</button>
+        <button id="btn-generar-alumnes" class="btn btn-success" data-i18n="genBtnStudents">🎓 Generate 5 Test Exams (JPG)</button>
         <div id="status-alumnes" class="status-msg"></div>
       </section>
 
       <!-- Plantilla BUIDA -->
       <section class="card">
-        <h2 data-i18n="genSec3Title">Plantilla en Blanc</h2>
+        <h2 data-i18n="genSec3Title">Blank Template</h2>
         <p style="color: var(--text-muted); font-size: 0.9rem;" data-i18n="genSec3Desc">
-          Descarrega la plantilla buida per imprimir i repartir als alumnes.
+          Download the blank template to print and distribute to students.
         </p>
         <div class="btn-group">
-          <button id="btn-dl-buit-png" class="btn btn-secondary" data-i18n="genBtnBlankPng">📥 Descarregar BUIDA (JPG)</button>
-          <button id="btn-dl-buit-pdf" class="btn btn-secondary" data-i18n="genBtnBlankPdf">📄 Descarregar BUIDA (PDF)</button>
+          <button id="btn-dl-buit-png" class="btn btn-secondary" data-i18n="genBtnBlankPng">📥 Download BLANK (JPG)</button>
+          <button id="btn-dl-buit-pdf" class="btn btn-secondary" data-i18n="genBtnBlankPdf">📄 Download BLANK (PDF)</button>
         </div>
         <div id="status-buit" class="status-msg"></div>
       </section>
@@ -248,35 +248,35 @@
          ============================================== -->
     <div id="tab-list" class="tab-content">
       <section class="card">
-        <h2 data-i18n="listSecTitle">Generador d'Exàmens Personalitzats per Llista</h2>
+        <h2 data-i18n="listSecTitle">Customized Exam Generator from Student List</h2>
         
         <div class="grid-3">
           <div class="form-group">
-            <label for="assignatura-list" data-i18n="lblSubject">Assignatura:</label>
-            <input type="text" id="assignatura-list" placeholder="Ex: Història">
+            <label for="assignatura-list" data-i18n="lblSubject">Subject:</label>
+            <input type="text" id="assignatura-list" placeholder="Ex: History">
           </div>
           <div class="form-group">
-            <label for="grup-list" data-i18n="lblGroup">Grup:</label>
+            <label for="grup-list" data-i18n="lblGroup">Group:</label>
             <input type="text" id="grup-list" placeholder="Ex: 2A">
           </div>
           <div class="form-group">
-            <label for="data-list" data-i18n="lblDate">Data:</label>
+            <label for="data-list" data-i18n="lblDate">Date:</label>
             <input type="text" id="data-list" placeholder="Ex: 27/05/2026">
           </div>
         </div>
 
         <div class="form-group">
-          <label for="num-questions-list" data-i18n="lblNumQList">Nombre de preguntes (Màx 150):</label>
+          <label for="num-questions-list" data-i18n="lblNumQList">Number of questions (Max 150):</label>
           <input type="number" id="num-questions-list" value="50" min="1" max="150">
         </div>
 
         <div class="form-group">
-          <label for="llista-alumnes" data-i18n="lblList">Llista d'Alumnes (Format: Nom, ID):</label>
-          <small style="color: var(--text-muted);" data-i18n="smallList">Un alumne per línia separat per coma. L'ID pot estar entre 00 i 99.</small>
-          <textarea id="llista-alumnes" rows="8" placeholder="Joan Perez, 01&#10;Maria Garcia, 12&#10;Albert Pou, 35"></textarea>
+          <label for="llista-alumnes" data-i18n="lblList">Student List (Format: Name, ID):</label>
+          <small style="color: var(--text-muted);" data-i18n="smallList">One student per line separated by comma. ID can be between 00 and 99.</small>
+          <textarea id="llista-alumnes" rows="8" placeholder="John Smith, 01&#10;Mary Garcia, 12&#10;Albert Pou, 35"></textarea>
         </div>
 
-        <button id="btn-generar-llista" class="btn btn-primary" data-i18n="btnGenerateList">📄 Generar i Descarregar PDF Únic</button>
+        <button id="btn-generar-llista" class="btn btn-primary" data-i18n="btnGenerateList">📄 Generate & Download Single PDF</button>
         <div id="status-list" class="status-msg"></div>
       </section>
     </div>
@@ -287,58 +287,58 @@
     <div id="tab-corr" class="tab-content">
 
       <div style="text-align: center;">
-        <div id="opencv-status">Carregant motor d'intel·ligència artificial (OpenCV)...</div>
+        <div id="opencv-status">Loading OpenCV engine...</div>
       </div>
 
       <section class="card">
-        <h2 data-i18n="corrSec1Title">Configuració i Càrrega</h2>
+        <h2 data-i18n="corrSec1Title">Configuration and Upload</h2>
         <div class="grid-2">
           <div>
             <div class="form-group">
-              <label for="pauta-input" data-i18n="corrLabelPauta">Imatge Pauta de Correcció (Professor):</label>
+              <label for="pauta-input" data-i18n="corrLabelPauta">Answer Key Image (Teacher):</label>
               <input type="file" id="pauta-input" accept="image/*">
             </div>
             <div class="form-group">
-              <label for="examens-input" data-i18n="corrLabelExams">Imatges Exàmens (Múltiples):</label>
+              <label for="examens-input" data-i18n="corrLabelExams">Exams Images (Multiple):</label>
               <input type="file" id="examens-input" accept="image/*" multiple>
             </div>
           </div>
           <div>
             <div class="form-group">
-              <label for="num-questions-corr" data-i18n="corrNumQCorr">Nombre de preguntes a avaluar:</label>
+              <label for="num-questions-corr" data-i18n="corrNumQCorr">Number of questions to evaluate:</label>
               <input type="number" id="num-questions-corr" value="150" min="1" max="150">
             </div>
             <div class="form-group">
-              <label for="penalitzacio-input" data-i18n="corrLabelPenalty">Penalització per error (Punts):</label>
+              <label for="penalitzacio-input" data-i18n="corrLabelPenalty">Penalty per error (Points):</label>
               <input type="text" id="penalitzacio-input" value="0.25">
-              <small style="color: var(--text-muted);" data-i18n="corrSmallPenalty">Exemple: 0.25, 0,25 o 0.</small>
+              <small style="color: var(--text-muted);" data-i18n="corrSmallPenalty">Example: 0.25, 0.25 or 0.</small>
             </div>
           </div>
         </div>
-        <button id="btn-processar" class="btn btn-primary" data-i18n="corrBtnProcess" disabled>Processar Tots els Exàmens</button>
-        <div id="loading-msg" data-i18n="corrLoadingMsg">Alineant i processant imatges. Això pot trigar una mica...</div>
+        <button id="btn-processar" class="btn btn-primary" data-i18n="corrBtnProcess" disabled>Process All Exams</button>
+        <div id="loading-msg" data-i18n="corrLoadingMsg">Aligning and processing images. This may take a while...</div>
       </section>
 
       <section class="card">
-        <h2 data-i18n="corrSec2Title">Resultats de la Correcció</h2>
+        <h2 data-i18n="corrSec2Title">Grading Results</h2>
         <div style="overflow-x: auto;">
           <table id="tabla-resultats">
             <thead>
               <tr>
-                <th data-i18n="corrThFile">Fitxer</th>
-                <th data-i18n="corrThId">ID Alumne</th>
-                <th data-i18n="corrThCorrect">Encerts</th>
+                <th data-i18n="corrThFile">File</th>
+                <th data-i18n="corrThId">Student ID</th>
+                <th data-i18n="corrThCorrect">Correct</th>
                 <th data-i18n="corrThErrors">Errors</th>
-                <th data-i18n="corrThBlank">Blancs</th>
-                <th data-i18n="corrThGrade">Nota Final (/10)</th>
+                <th data-i18n="corrThBlank">Blanks</th>
+                <th data-i18n="corrThGrade">Final Grade (/10)</th>
               </tr>
             </thead>
             <tbody>
-              <tr><td colspan="6" style="text-align: center; color: gray;" id="td-empty" data-i18n="corrTdEmpty">Puja els fitxers i fes clic a processar.</td></tr>
+              <tr><td colspan="6" style="text-align: center; color: gray;" id="td-empty" data-i18n="corrTdEmpty">Upload files and click process.</td></tr>
             </tbody>
           </table>
         </div>
-        <button id="btn-csv" class="btn btn-success" style="display: none;" data-i18n="corrBtnCsv">Descarregar Resultats en CSV</button>
+        <button id="btn-csv" class="btn btn-success" style="display: none;" data-i18n="corrBtnCsv">Download Results (CSV)</button>
       </section>
 
       <!-- Elements ocults per a OpenCV i manipulació d'imatges -->
@@ -494,7 +494,7 @@
 
         canvasName: "Nombre:", canvasSubject: "Asignatura:", canvasGroup: "Grupo:", canvasDate: "Fecha:",
         canvasIdTens: "ID Alumno - Decenas:", canvasIdUnits: "ID Alumno - Unidades:",
-        canvasTitlePauta: "PAUTA DE CORRECCIÓN (PROFESOR)", 
+        canvasTitlePauta: "PAUTA DE CORRECCIÓN (PROFESSOR)", 
         canvasTitleStudent: "EXAMEN DE ALUMNO (ID: ", 
         canvasTitleBlank: "HOJA DE RESPUESTAS",
         canvasSignature: "Firma:",
@@ -590,7 +590,7 @@
       }
     };
 
-    let currentLang = 'ca';
+    let currentLang = 'en';
 
     function setLang(lang) {
       currentLang = lang;
@@ -761,7 +761,7 @@
         
         ctx.font = 'bold 16px Arial, sans-serif';
         ctx.fillStyle = '#000000';
-        ctx.fillText(t.canvasSignature || "Signatura / Signature:", sigX, sigY - 8);
+        ctx.fillText(t.canvasSignature || "Signature:", sigX, sigY - 8);
         
         ctx.strokeStyle = '#000000';
         ctx.lineWidth = 1.5;
@@ -822,7 +822,7 @@
       const arr = getPautaArray(); if (!arr) return;
       const numQ = parseInt(document.getElementById('num-questions-gen').value, 10) || 150;
       const cvs = drawTemplate({ titleText: translations[currentLang].canvasTitlePauta, respostesArray: arr, numQuestions: numQ });
-      downloadCanvasAsImage(cvs, 'Pauta.jpg');
+      downloadCanvasAsImage(cvs, 'Key.jpg');
       document.getElementById('status-pauta').innerText = translations[currentLang].statusPautaPng;
     });
 
@@ -830,7 +830,7 @@
       const arr = getPautaArray(); if (!arr) return;
       const numQ = parseInt(document.getElementById('num-questions-gen').value, 10) || 150;
       const cvs = drawTemplate({ titleText: translations[currentLang].canvasTitlePauta, respostesArray: arr, numQuestions: numQ });
-      downloadCanvasAsPDF(cvs, 'Pauta.pdf');
+      downloadCanvasAsPDF(cvs, 'Key.pdf');
       document.getElementById('status-pauta').innerText = translations[currentLang].statusPautaPdf;
     });
 
@@ -849,7 +849,7 @@
           respostesArray: arr,
           numQuestions: maxQ
         });
-        downloadCanvasAsImage(cvs, `Alumne_${idA}.jpg`);
+        downloadCanvasAsImage(cvs, `Student_${idA}.jpg`);
         await new Promise(r => setTimeout(r, 500));
       }
       document.getElementById('status-alumnes').innerText = translations[currentLang].statusStudentsDone;
@@ -859,14 +859,14 @@
     document.getElementById('btn-dl-buit-png').addEventListener('click', () => {
       const numQ = parseInt(document.getElementById('num-questions-gen').value, 10) || 150;
       const cvs = drawTemplate({ titleText: translations[currentLang].canvasTitleBlank, numQuestions: numQ });
-      downloadCanvasAsImage(cvs, 'Plantilla_Buida.jpg');
+      downloadCanvasAsImage(cvs, 'Blank_Template.jpg');
       document.getElementById('status-buit').innerText = translations[currentLang].statusBlankPng;
     });
 
     document.getElementById('btn-dl-buit-pdf').addEventListener('click', () => {
       const numQ = parseInt(document.getElementById('num-questions-gen').value, 10) || 150;
       const cvs = drawTemplate({ titleText: translations[currentLang].canvasTitleBlank, numQuestions: numQ });
-      downloadCanvasAsPDF(cvs, 'Plantilla_Buida.pdf');
+      downloadCanvasAsPDF(cvs, 'Blank_Template.pdf');
       document.getElementById('status-buit').innerText = translations[currentLang].statusBlankPdf;
     });
 
@@ -929,8 +929,8 @@
             pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
           }
 
-          let safeAssignatura = assignatura ? assignatura.replace(/[^a-z0-9]/gi, '_') : 'Exàmens';
-          pdf.save(`Exàmens_Personalitzats_${safeAssignatura}.pdf`);
+          let safeAssignatura = assignatura ? assignatura.replace(/[^a-z0-9]/gi, '_') : 'Exams';
+          pdf.save(`Custom_Exams_${safeAssignatura}.pdf`);
           
           status.style.color = "var(--success)";
           status.innerText = t.statusSuccessList;
@@ -1052,9 +1052,8 @@
         cv.imshow('omr-canvas', dst);
 
       } catch (error) {
-        console.error("Error processant imatge a OpenCV:", error);
+        console.error("Error processing image in OpenCV:", error);
       } finally {
-        // Neteja manual forçada. El navegador no ho fa per nosaltres a WebAssembly!
         try { if (src) src.delete(); } catch(e) {}
         try { if (gray) gray.delete(); } catch(e) {}
         try { if (thresh) thresh.delete(); } catch(e) {}
@@ -1153,7 +1152,6 @@
             <td><span style="color: gray;">${bl}</span></td><td><strong>${final}</strong></td>`;
           tbody.appendChild(row);
           
-          // Petit descans perquè el navegador "respiri" entre imatges
           await new Promise(r => setTimeout(r, 100)); 
         }
         document.getElementById('btn-csv').style.display = 'inline-block';
@@ -1170,14 +1168,18 @@
       resultatsGlobals.forEach(r => { csv += `${r.fitxer},${r.idAlumne},${r.ok},${r.err},${r.bl},${r.final}\n`; });
       const a = document.createElement("a"); 
       a.href = encodeURI(csv); 
-      a.download = "resultats_omr.csv";
+      a.download = "omr_results.csv";
       document.body.appendChild(a); 
       a.click(); 
       document.body.removeChild(a);
     });
+
+    // Initialize English language layout on startup
+    setLang('en');
   </script>
 </body>
 </html>
+
 
 
 
