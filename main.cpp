@@ -8,7 +8,7 @@
 #include <opencv2/opencv.hpp>
 
 // ==============================================================================
-// CONSTANTS DE GEOMETRIA (IDENTIQUES AL TEU CODI WEB I PYTHON)
+// CONSTANTS DE GEOMETRIA (IDENTIQUES AL MEU CODI WEB I PYTHON)
 // ==============================================================================
 const int TEMPLATE_W = 1050;
 const int TEMPLATE_H = 1485;
