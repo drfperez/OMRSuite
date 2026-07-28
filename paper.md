@@ -1,21 +1,20 @@
 ---
-title: 'OMRSuite: A Multi-Platform, Privacy-Preserving Optical Mark Recognition System for Automated Assessment'
+title: 'OMR Suite: A Multi-Engine, Privacy-First Solution for Optical Mark Recognition and Assessment'
 tags:
-  - optical mark recognition
-  - computer vision
+  - computer-vision
+  - optical-mark-recognition
+  - educational-software
   - OpenCV
   - WebAssembly
-  - education technology
-  - exam grading
-  - JavaScript
-  - Python
   - C++
+  - Python
 authors:
-  - name: Francisco Pérez García
+  - name: Dr. Francisco Pérez García 
     orcid: 0000-0002-1395-5573
+    corresponding: true
     affiliation: 1
 affiliations:
-  - name: Independent Researcher
+  - name: Independent Researcher, Spain
     index: 1
 date: 28 July 2026
 bibliography: paper.bib
@@ -23,65 +22,81 @@ bibliography: paper.bib
 
 # Summary
 
-`OMRSuite` is an open-source, multi-platform software suite designed for generating, personalizing, and automatically evaluating Optical Mark Recognition (OMR) bubble sheet assessments. Available as a client-side Web application (HTML5/JavaScript using OpenCV.js and jsPDF), as well as native Python and C++ modules, `OMRSuite` provides a complete, end-to-end assessment pipeline. The suite consists of three integrated modules:
+Educational institutions and researchers frequently require reliable, cost-effective methods for evaluating multiple-choice evaluations. `OMR Suite` is an open-source, privacy-first software system designed to generate, personalize, and automatically grade Optical Mark Recognition (OMR) exam sheets.
 
-1. **Exam Generator:** Produces standardized answer keys and blank bubble sheets (supporting up to 150 four-option multiple-choice questions) in both vector (PDF) and raster (JPG) formats.
-2. **Student List Customizer:** Performs batch generation of personalized exam forms pre-populated with student names, identification codes, course metadata, and dedicated signature zones for manual verification.
-3. **Automatic Computer Vision Evaluator:** Corrects perspective distortion and warping in scanned or photographed answer sheets using homography estimation and evaluates marked responses via Region of Interest (ROI) pixel-density thresholding.
+Unlike traditional OMR solutions that rely on specialized scanning hardware or cloud backend servers, `OMR Suite` provides a unified computer vision pipeline implemented across three distinct processing architectures:
+1. A **100% client-side HTML5/WebAssembly engine** (`OpenCV.js` and `jsPDF`) running entirely within modern web browsers without server interaction.
+2. A **Python cloud/batch engine** (`OpenCV` and `Pandas`) optimized for heavy bulk workloads inside Jupyter environments or Google Colab.
+3. A **Native C++ engine** (`OpenCV 4`) compiled to a standalone executable for high-throughput, low-latency desktop execution.
 
-Through its WebAssembly-powered browser interface, `OMRSuite` executes all computer vision algorithms locally on the client side, ensuring compliance with data privacy regulations (such as GDPR) without transmitting scanned documents or student data to external servers.
+All three engines share a standardized geometry model and a 4-stage computer vision pipeline capable of automatically correcting page rotation, perspective distortion, and illumination variance while evaluating up to 150 questions per sheet.
 
-# Statement of Need
+# Statement of need
 
-Automated multiple-choice grading systems often require proprietary optical scanners, costly commercial software subscriptions, or complex server deployments. While open-source alternatives exist, many require command-line proficiency, lack customizable front-end form generators, or depend on backend server processing that introduces latency and privacy risks. `OMRSuite` addresses these limitations by providing a lightweight, zero-installation solution that runs in any standard web browser while offering native C++ and Python ports for high-throughput batch execution.
+While commercial OMR systems and cloud-based grading platforms exist, they present significant barriers for educators and academic researchers:
+* **Privacy and Compliance:** Regulations such as GDPR strictly limit the transmission of identifiable student records to third-party cloud backends.
+* **Infrastructure and Cost:** Specialized hardware scanners and proprietary software licenses impose non-trivial financial burdens on lower-resource academic institutions.
+* **Resource Limits in Browser Environments:** Client-side web implementations leveraging WebAssembly [@Haas:2017] provide ideal zero-installation workflows; however, web browsers enforce rigid memory (RAM) allocation caps per tab. Grading hundreds of high-resolution images in a single web tab can trigger out-of-memory crashes.
 
-Key contributions of `OMRSuite` include:
+`OMR Suite` directly addresses these limitations by pairing a serverless, privacy-preserving web application with fallback Python and C++ engines. Teachers can generate and grade exams in browser mode for daily classroom use, or seamlessly pivot to the Python/C++ binaries for large-scale institutional evaluation without changing answer sheet templates.
 
-* **Zero-Server Privacy Guarantee:** Scanned student sheets are processed entirely in memory on the local machine via WebAssembly, eliminating data leakage risks.
-* **Robust Alignment via Fiducial Markers:** Uses planar homography based on four solid corner bounding markers, enabling accurate processing of photos captured via smartphone cameras or low-cost document scanners.
-* **Flexible Assessment Rules:** Accommodates arbitrary question counts (1 to 150), 2-digit student identification encoding (tens and units), user-defined wrong-answer penalties, and automated CSV export.
-* **Native Multilingual Support:** Built-in internationalization (i18n) for English, Spanish, and Catalan.
+# State of the field
 
-# State of the Field
+Several open-source OMR packages currently exist in the academic and educational ecosystem:
+* **Auto-Multiple-Choice (AMC)** [@AMC:2021]: A mature, highly flexible OMR system based on LaTeX. While powerful, AMC requires a complex local LaTeX installation, operates primarily on Unix-like platforms, and lacks a zero-installation browser interface.
+* **SDAPS** [@SDAPS:2019]: A Python-based OMR utility focused on survey parsing. It relies heavily on specific backend dependencies and lacks real-time, client-side browser evaluation.
+* **FormScanner** [@FormScanner:2017]: A desktop Java application for reading OMR forms. It requires local runtime installation (JRE) and lacks multi-engine cloud or web integrations.
 
-Existing open-source OMR tools such as *FormScanner* [@formscanner] or *Auto-Multiple-Choice* [@amc] provide robust grading pipelines but often depend on heavy desktop environments (Java/GTK) or LaTeX compilation chains. Newer web-based alternatives typically rely on cloud backend services to execute OpenCV or PyTorch inference, which poses compliance issues when handling student records. `OMRSuite` bridges this gap by combining modern WebAssembly compilation (`OpenCV.js`) with native C++ and Python interfaces, delivering high portability without external infrastructure dependencies.
+`OMR Suite` fills a distinct gap by combining **zero-setup browser execution**, **native C++ desktop execution**, and **cloud-ready Python notebooks** around a single standardized 150-question A4 template format.
 
-# System Architecture & Methodology
+# Software design
 
-+-----------------------------------------------------------------------+
-|                          OMRSuite Pipeline                            |
-+-----------------------------------------------------------------------+
-| 1. Sheet Generation --> Vector/Raster Export (Fiducials + Grid)      |
-| 2. Image Capture    --> Mobile / Scanner Capture (Distorted Input)   |
-| 3. Fiducial Detection --> Perspective Transformation & Normalization |
-| 4. ROI Segmentation --> Student ID Decoding & Bubble Sampling        |
-| 5. Evaluation Matrix --> Penalty Adjustment & CSV Export             |
-+-----------------------------------------------------------------------+
+The core system architecture consists of a unified computer vision pipeline implemented across JavaScript, Python, and C++.
 
-## 1. Planar Homography and Image Normalization
-To correct scale, rotation, and perspective skew caused by handheld camera capture, four solid square fiducial markers ($40 \times 40\text{ px}$) are placed at known target coordinates near the sheet corners within a fixed coordinate system ($1050 \times 1485\text{ px}$). The alignment pipeline executes as follows:
-1. Grayscale conversion and adaptive binary thresholding.
-2. Contour extraction via `findContours`, filtering candidate bounding boxes by surface area ($200 < A < 30000\text{ px}^2$), aspect ratio ($0.7 \le \text{AR} \le 1.3$), and spatial convexity.
-3. Centroid calculation using central moments:
-   $$(x_c, y_c) = \left(\frac{M_{10}}{M_{00}}, \frac{M_{01}}{M_{00}}\right)$$
-4. Point set sorting to map detected quad vertices $(x_i, y_i)$ to standard template coordinates $(x'_i, y'_i)$ through the transformation matrix $\mathbf{H}$:
-   $$\begin{bmatrix} x' \\ y' \\ 1 \end{bmatrix} = \mathbf{H} \begin{bmatrix} x \\ y \\ 1 \end{bmatrix}$$
-5. Perspective warping via `warpPerspective` to normalize the document to uniform canvas dimensions.
 
-## 2. Response and Student ID Extraction
-Once aligned to the baseline coordinate space, individual candidate bubbles are sampled using a Region of Interest (ROI) box of size $10 \times 10\text{ px}$ centered at predefined coordinate $(c_x, c_y)$. A bubble choice is classified as marked when the relative density of dark pixels beneath the threshold exceeds $40\%$:
-$$\text{IsMarked}(c_x, c_y) = \frac{1}{N} \sum_{(x,y) \in \text{ROI}} \mathbb{I}(I(x,y) < 120) > 0.40$$
-where $I(x,y)$ represents gray luminance intensity and $N$ is the total pixel count within the sampled region.
+[ Input Exam Scan ]
+│
+▼
+[ 1. Grayscale & Binarization ]
+│
+▼
+[ 2. 4-Corner Fiducial Detection ]
+│
+▼
+[ 3. Perspective Warp (1050x1485 Grid) ]
+│
+▼
+[ 4. ROI Dark Pixel Density Sampling ]
+│
+▼
+[ Output: CSV Grade Report ]
 
-## 3. Scoring Logic
-Final student grades ($G \in [0, 10]$) are calculated using a scoring model incorporating a custom penalty $P \ge 0$ for incorrect responses:
-$$G = \max\left(0, \frac{C - (E \times P)}{Q} \times 10\right)$$
-where $C$ is the total number of correct answers, $E$ is the number of incorrect responses (unmarked/blank items are excluded), $P$ is the penalty factor per error, and $Q$ is the total number of evaluated questions.
+### The Computer Vision Pipeline
 
-# Software Availability
-The complete source code, web application interface, and command-line scripts are published under the MIT License on GitHub at [https://github.com/drfperez/OMRSuite](https://github.com/drfperez/OMRSuite).
+1. **Preprocessing and Binarization:** Scanned exam sheets are converted to grayscale and thresholded using inverse binarization:
+   $$I_{\text{thresh}}(x,y) = \begin{cases} 255 & \text{if } I(x,y) < T \\ 0 & \text{otherwise} \end{cases}$$
+   where $T$ represents the binarization intensity threshold (typically $T = 120$).
+
+2. **Fiducial Registration:** The algorithm extracts external contours and filters candidates by area $A$ ($200 < A < 30000$), aspect ratio ($0.7 \le w/h \le 1.3$), and convexity ratio ($A / A_{\text{hull}} > 0.8$). The centers of mass $(C_x, C_y)$ of the four largest valid fiducials are computed via spatial moments:
+   $$C_x = \frac{M_{10}}{M_{00}}, \quad C_y = \frac{M_{01}}{M_{00}}$$
+
+3. **Homography and Perspective Normalization:** The detected corners are mapped to predefined fixed coordinates on a canonical $1050 \times 1485$ pixel template grid using a perspective transformation matrix $M_{\text{perspective}}$, removing page skew, tilt, and scaling artifacts.
+
+4. **Region of Interest (ROI) Evaluation:** Bubbles are evaluated by sampling circular or square bounding boxes of size $10 \times 10$ pixels at normalized coordinates $(x_i, y_i)$. A bubble is flagged as filled if the ratio of active foreground pixels exceeds $40\%$:
+   $$\text{Fill Ratio} = \frac{1}{W \cdot H} \sum_{x \in \text{ROI}} \sum_{y \in \text{ROI}} \mathbb{I}\left(I_{\text{thresh}}(x,y) == 255\right) > 0.40$$
+
+# Research impact statement
+
+`OMR Suite` provides an accessible, zero-cost assessment platform for schools, universities, and educational researchers. By keeping all computations local within the browser or via standalone native executables, the suite guarantees compliance with strict data protection regulations.
+
+The software has demonstrated high grading accuracy across various image resolutions, lighting conditions, and camera angles. Its open-source codebase allows researchers to extend the vision algorithms, adapt answer sheet layouts, or integrate the core C++/Python modules into larger learning management systems (LMS) and automated research pipelines.
+
+# AI usage disclosure
+
+No generative AI tools were used in the core computer vision algorithm development or primary software architecture of this package.
 
 # Acknowledgements
-`OMRSuite` builds upon open-source software projects, including [OpenCV](https://opencv.org/) and [jsPDF](https://github.com/parallax/jsPDF).
+
+The author acknowledges the open-source maintainers of OpenCV [@Bradski:2000], OpenCV.js, and jsPDF [@jsPDF:2021], whose foundational libraries enabled the multi-platform architecture of this software.
 
 # References
