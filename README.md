@@ -55,6 +55,23 @@ Because this project is built as a single standalone HTML application, **no inst
 
 ---
 
+## 🐍 Python & Google Colab Alternative (For Bulk Processing)
+
+While the HTML web application is perfect for everyday use, maximum privacy, and zero-setup, web browsers impose strict memory (RAM) limits on individual tabs. Grading hundreds of high-resolution images simultaneously using WebAssembly (OpenCV.js) inside a single browser tab can sometimes lead to memory crashes.
+
+To solve this, this repository also includes a **Jupyter Notebook (`OMR_Suite_Colab.ipynb`)** designed specifically for heavy workloads. 
+
+**Why use the `.ipynb` version?**
+* **Unlimited Batch Processing:** Grade hundreds or thousands of exams in a single run without worrying about browser RAM limitations.
+* **Native Speeds:** Utilizes native Python and C++ OpenCV bindings for lightning-fast image alignment and reading.
+* **Cloud or Local:** Run it locally via Jupyter/VSCode or execute it instantly in the cloud using Google Colab.
+* **Automated Data Tabulation:** Automatically generates structured pandas DataFrames and exports clean CSV reports.
+
+👉 **[Open the Notebook in Google Colab](https://colab.research.google.com/github/drfperez/OMRSuite/blob/main/OMRSuite.ipynb)** *(Remember to update this URL with your actual GitHub path!)*
+
+
+---
+
 ## 📸 Sample Answer Sheet
 
 Here is a preview of the standard 150-question A4 answer sheet template (`template.jpg`):
