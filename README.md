@@ -96,6 +96,7 @@ For dedicated local builds with minimal executable sizes and instant startup:
 #### Compilation (Linux / macOS / MinGW):
 ```bash
 g++ -O3 main.cpp -o omr_engine `pkg-config --cflags --libs opencv4`
+```
 
 ---
 
