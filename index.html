@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ca">
 <head>
@@ -342,9 +341,9 @@
         <button id="btn-csv" class="btn btn-success" style="display: none;" data-i18n="corrBtnCsv">Descarregar Resultats en CSV</button>
       </section>
 
-      <!-- Elements ocults per a OpenCV -->
-      <img id="img-hidden" style="display:none;">
+      <!-- Elements ocults per a OpenCV i manipulació d'imatges -->
       <canvas id="omr-canvas" style="display:none;"></canvas>
+      <canvas id="read-canvas" style="display:none;"></canvas>
     </div>
 
   </div>
@@ -428,7 +427,7 @@
         canvasTitlePauta: "PAUTA DE CORRECCIÓ (PROFESSOR)", 
         canvasTitleStudent: "EXAMEN D'ALUMNE (ID: ", 
         canvasTitleBlank: "FULL DE RESPOSTES",
-        canvasSignature: "Signatura:", // AFEGIT
+        canvasSignature: "Signatura:",
 
         cvLoading: "Carregant motor OpenCV...",
         cvReady: "Motor OpenCV Preparat",
@@ -498,7 +497,7 @@
         canvasTitlePauta: "PAUTA DE CORRECCIÓN (PROFESOR)", 
         canvasTitleStudent: "EXAMEN DE ALUMNO (ID: ", 
         canvasTitleBlank: "HOJA DE RESPUESTAS",
-        canvasSignature: "Firma:", // AFEGIT
+        canvasSignature: "Firma:",
 
         cvLoading: "Cargando motor OpenCV...",
         cvReady: "Motor OpenCV Preparado",
@@ -568,7 +567,7 @@
         canvasTitlePauta: "ANSWER KEY (TEACHER)", 
         canvasTitleStudent: "STUDENT EXAM (ID: ", 
         canvasTitleBlank: "ANSWER SHEET",
-        canvasSignature: "Signature:", // AFEGIT
+        canvasSignature: "Signature:",
 
         cvLoading: "Loading OpenCV engine...",
         cvReady: "OpenCV Engine Ready",
@@ -638,7 +637,7 @@
         grupText = "",
         respostesArray = null,
         numQuestions = 150,
-        includeSignature = false // <-- NOU PARÀMETRE
+        includeSignature = false
       } = opts;
 
       const t = translations[currentLang];
@@ -769,8 +768,6 @@
         ctx.strokeRect(sigX, sigY, sigWidth, sigHeight);
       }
       // --- FI QUADRE DE SIGNATURA ---
-
-
 
       return cvs;
     }
@@ -924,7 +921,7 @@
               dataText: dataText,
               grupText: grupText,
               numQuestions: numQ,
-              includeSignature: true // <-- PASSEM EL FLAG NOMÉS AQUÍ
+              includeSignature: true
             });
             
             const imgData = cvs.toDataURL('image/jpeg', 0.85);
@@ -963,88 +960,108 @@
     const corrCtx = corrCvs.getContext('2d', { willReadFrequently: true });
     let resultatsGlobals = [];
 
-            function carregarImatgeDOM(file) {
+    // --- NOVA FUNCIÓ DE CÀRREGA (Evita límit de Canvas al navegador) ---
+    function carregarImatgeDOM(file) {
       return new Promise((resolve, reject) => {
-        // 1. Creem un element d'imatge nou i únic per a cada arxiu
-        const img = document.createElement('img');
-        img.style.display = 'none';
-        
-        // 2. L'afegim físicament a la pàgina perquè OpenCV el reconegui
-        document.body.appendChild(img); 
-        
+        const img = new Image();
         const url = URL.createObjectURL(file);
         
         img.onload = () => { 
-          resolve(img); 
-          // 3. Un cop OpenCV ha fet la seva feina, netegem la memòria i esborrem la imatge oculta
-          setTimeout(() => {
-            URL.revokeObjectURL(url);
-            if (img.parentNode) document.body.removeChild(img);
-          }, 2500);
+          const canvas = document.getElementById('read-canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          
+          const ctx = canvas.getContext('2d', { willReadFrequently: true });
+          ctx.drawImage(img, 0, 0);
+          
+          URL.revokeObjectURL(url);
+          resolve(canvas);
         };
         
         img.onerror = () => { 
-          if (img.parentNode) document.body.removeChild(img);
+          URL.revokeObjectURL(url);
           reject(new Error(translations[currentLang].errLoadImg)); 
         };
         
         img.src = url;
       });
     }
-    
-    
 
+    // --- NOVA FUNCIÓ ROBUSTA DE REDREÇAMENT (Evita fuites de memòria) ---
     function redrecarImatge(imgElement) {
-      let src = cv.imread(imgElement); let dst = new cv.Mat();
-      let gray = new cv.Mat(); cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
-      let thresh = new cv.Mat(); cv.threshold(gray, thresh, 120, 255, cv.THRESH_BINARY_INV);
+      let src, gray, thresh, contours, hierarchy, dst;
 
-      let contours = new cv.MatVector(); let hierarchy = new cv.Mat();
-      cv.findContours(thresh, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+      try {
+        src = cv.imread(imgElement); 
+        dst = new cv.Mat();
+        gray = new cv.Mat(); 
+        thresh = new cv.Mat();
+        contours = new cv.MatVector(); 
+        hierarchy = new cv.Mat();
 
-      let markers = [];
-      for (let i = 0; i < contours.size(); ++i) {
-        let cnt = contours.get(i); let area = cv.contourArea(cnt);
-        if (area > 200 && area < 30000) {
-          let rect = cv.boundingRect(cnt); let aspect = rect.width / rect.height;
-          if (aspect >= 0.7 && aspect <= 1.3) {
-            let hull = new cv.Mat(); cv.convexHull(cnt, hull, false, true);
-            if ((area / cv.contourArea(hull)) > 0.8) {
-              let M = cv.moments(cnt, false);
-              markers.push({ x: M.m10 / M.m00, y: M.m01 / M.m00, area: area });
+        cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
+        cv.threshold(gray, thresh, 120, 255, cv.THRESH_BINARY_INV);
+        cv.findContours(thresh, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+
+        let markers = [];
+        for (let i = 0; i < contours.size(); ++i) {
+          let cnt = contours.get(i); 
+          let area = cv.contourArea(cnt);
+          if (area > 200 && area < 30000) {
+            let rect = cv.boundingRect(cnt); 
+            let aspect = rect.width / rect.height;
+            if (aspect >= 0.7 && aspect <= 1.3) {
+              let hull = new cv.Mat(); 
+              cv.convexHull(cnt, hull, false, true);
+              if ((area / cv.contourArea(hull)) > 0.8) {
+                let M = cv.moments(cnt, false);
+                markers.push({ x: M.m10 / M.m00, y: M.m01 / M.m00, area: area });
+              }
+              if (hull) hull.delete();
             }
-            hull.delete();
           }
+          if (cnt) cnt.delete();
         }
-        cnt.delete();
+
+        markers.sort((a, b) => b.area - a.area); 
+        let topM = markers.slice(0, 4);
+
+        if (topM.length === 4) {
+          topM.sort((a, b) => (a.x + a.y) - (b.x + b.y));
+          let tl = topM[0], br = topM[3];
+          let rem = [topM[1], topM[2]].sort((a, b) => (a.x - a.y) - (b.x - b.y));
+          let tr = rem[1], bl = rem[0];
+
+          let srcTri = cv.matFromArray(4, 1, cv.CV_32FC2, [tl.x, tl.y, tr.x, tr.y, bl.x, bl.y, br.x, br.y]);
+          let dstTri = cv.matFromArray(4, 1, cv.CV_32FC2, [
+            60, 160, TEMPLATE_W - 60, 160, 60, 1420, TEMPLATE_W - 60, 1420
+          ]);
+          let M = cv.getPerspectiveTransform(srcTri, dstTri);
+          cv.warpPerspective(src, dst, M, new cv.Size(TEMPLATE_W, TEMPLATE_H));
+          
+          if (srcTri) srcTri.delete(); 
+          if (dstTri) dstTri.delete(); 
+          if (M) M.delete();
+        } else {
+          console.warn(translations[currentLang].warnFiducial);
+          cv.resize(src, dst, new cv.Size(TEMPLATE_W, TEMPLATE_H), 0, 0, cv.INTER_AREA);
+        }
+        
+        corrCvs.width = TEMPLATE_W;
+        corrCvs.height = TEMPLATE_H;
+        cv.imshow('omr-canvas', dst);
+
+      } catch (error) {
+        console.error("Error processant imatge a OpenCV:", error);
+      } finally {
+        // Neteja manual forçada. El navegador no ho fa per nosaltres a WebAssembly!
+        try { if (src) src.delete(); } catch(e) {}
+        try { if (gray) gray.delete(); } catch(e) {}
+        try { if (thresh) thresh.delete(); } catch(e) {}
+        try { if (contours) contours.delete(); } catch(e) {}
+        try { if (hierarchy) hierarchy.delete(); } catch(e) {}
+        try { if (dst) dst.delete(); } catch(e) {}
       }
-
-      markers.sort((a, b) => b.area - a.area); 
-      let topM = markers.slice(0, 4);
-
-      if (topM.length === 4) {
-        topM.sort((a, b) => (a.x + a.y) - (b.x + b.y));
-        let tl = topM[0], br = topM[3];
-        let rem = [topM[1], topM[2]].sort((a, b) => (a.x - a.y) - (b.x - b.y));
-        let tr = rem[1], bl = rem[0];
-
-        let srcTri = cv.matFromArray(4, 1, cv.CV_32FC2, [tl.x, tl.y, tr.x, tr.y, bl.x, bl.y, br.x, br.y]);
-        let dstTri = cv.matFromArray(4, 1, cv.CV_32FC2, [
-          60, 160, TEMPLATE_W - 60, 160, 60, 1420, TEMPLATE_W - 60, 1420
-        ]);
-        let M = cv.getPerspectiveTransform(srcTri, dstTri);
-        cv.warpPerspective(src, dst, M, new cv.Size(TEMPLATE_W, TEMPLATE_H));
-        srcTri.delete(); dstTri.delete(); M.delete();
-      } else {
-        console.warn(translations[currentLang].warnFiducial);
-        cv.resize(src, dst, new cv.Size(TEMPLATE_W, TEMPLATE_H), 0, 0, cv.INTER_AREA);
-      }
-      
-      corrCvs.width = TEMPLATE_W;
-      corrCvs.height = TEMPLATE_H;
-      cv.imshow('omr-canvas', dst);
-      
-      src.delete(); gray.delete(); thresh.delete(); contours.delete(); hierarchy.delete(); dst.delete();
     }
 
     function esMarcaObscura(cx, cy) {
@@ -1135,7 +1152,9 @@
             <td><span style="color: green;">${ok}</span></td><td><span style="color: red;">${err}</span></td>
             <td><span style="color: gray;">${bl}</span></td><td><strong>${final}</strong></td>`;
           tbody.appendChild(row);
-          await new Promise(r => setTimeout(r, 20)); 
+          
+          // Petit descans perquè el navegador "respiri" entre imatges
+          await new Promise(r => setTimeout(r, 100)); 
         }
         document.getElementById('btn-csv').style.display = 'inline-block';
       } catch (e) {
@@ -1159,14 +1178,6 @@
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
 
 
 
