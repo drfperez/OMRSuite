@@ -14,7 +14,7 @@
 
 Try the single-file web application directly in your browser with zero installation or setup:
 
-👉 **[Launch Web Live Demo](https://drfperez.neocities.org/quiz/3languages/)**
+👉 **[Launch Web Live Demo](https://drfperez.github.io/omr/)**
 
 ---
 
@@ -71,7 +71,7 @@ Choose the right workflow based on your workload and environment:
 ## 🚀 Quick Start & Usage Guide
 
 ### 1. Web Application (Zero Setup)
-1. Open the [Live Demo](https://drfperez.neocities.org/quiz/3languages/) or download `index.html` locally.
+1. Open the [Live Demo](https://drfperez.github.io/omr/) or download `index.html` locally.
 2. Open `index.html` in any web browser.
 3. Generate your answer sheets, upload the teacher key image, and grade student sheets directly.
 
